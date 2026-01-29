@@ -869,14 +869,130 @@ init_db()
 
 @ui.page('/')
 def index():
-    ui.colors(primary='#0b1220', secondary='#111827')
+    ui.colors(primary='#0b1220', secondary='#111827', accent='#22d3ee', positive='#22c55e', negative='#ef4444')
 
     ui.add_head_html("""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-      .glass { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); border-radius: 20px; }
-      .solid_card { background: rgba(248,250,252,0.95); color: #0f172a; border: 1px solid rgba(0,0,0,0.08); border-radius: 22px; }
+      body, .q-page, .q-page-container, .nicegui-app {
+          font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+          background: radial-gradient(1200px 800px at 12% -10%, rgba(34,211,238,0.14), transparent 50%),
+                      radial-gradient(900px 600px at 95% 0%, rgba(59,130,246,0.18), transparent 60%),
+                      linear-gradient(180deg, #0b1220 0%, #0f172a 45%, #0b1220 100%);
+          color: #e2e8f0;
+      }
+      a { color: inherit; }
+      .glass {
+          background: rgba(15,23,42,0.60);
+          border: 1px solid rgba(148,163,184,0.18);
+          border-radius: 22px;
+          box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+      }
+      .solid_card {
+          background: rgba(248,250,252,0.98);
+          color: #0f172a;
+          border: 1px solid rgba(148,163,184,0.30);
+          border-radius: 24px;
+          box-shadow: 0 18px 50px rgba(15,23,42,0.20);
+      }
       .title { font-weight: 800; letter-spacing: -0.02em; }
       .muted { opacity: 0.75; }
+      .title-gradient {
+          background: linear-gradient(90deg, #e2e8f0, #22d3ee 60%, #38bdf8);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+      }
+      .app-header {
+          background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,41,59,0.88));
+          border-bottom: 1px solid rgba(148,163,184,0.15);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      }
+      .top-bar {
+          background: rgba(15,23,42,0.55);
+          border: 1px solid rgba(148,163,184,0.15);
+          border-radius: 18px;
+          box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+      }
+      .panel {
+          min-height: 420px;
+      }
+      .section-title {
+          font-size: 1.1rem;
+          font-weight: 700;
+      }
+      .chip {
+          padding: 4px 10px;
+          border-radius: 999px;
+          font-size: 0.75rem;
+          background: rgba(148,163,184,0.18);
+          color: #e2e8f0;
+      }
+      .btn-primary .q-btn__content {
+          font-weight: 700;
+          letter-spacing: 0.01em;
+      }
+      .btn-primary {
+          background: linear-gradient(135deg, #22d3ee, #3b82f6);
+          color: #0f172a !important;
+          border-radius: 14px;
+          box-shadow: 0 12px 24px rgba(34,211,238,0.35);
+      }
+      .btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 16px 30px rgba(34,211,238,0.45);
+      }
+      .btn-secondary {
+          background: rgba(148,163,184,0.15);
+          color: #e2e8f0 !important;
+          border-radius: 12px;
+      }
+      .btn-secondary:hover {
+          background: rgba(148,163,184,0.25);
+      }
+      .q-field--outlined .q-field__control {
+          background: rgba(15,23,42,0.55);
+          border-radius: 14px;
+      }
+      .q-field__label, .q-field__native {
+          color: #e2e8f0;
+      }
+      .q-field__control input::placeholder {
+          color: rgba(226,232,240,0.6);
+      }
+      .q-btn--flat {
+          color: #e2e8f0;
+      }
+      .modern-table .q-table__top,
+      .modern-table .q-table__bottom {
+          border-radius: 14px;
+      }
+      .modern-table .q-table__middle {
+          background: rgba(15,23,42,0.35);
+          border-radius: 16px;
+      }
+      .modern-table thead tr th {
+          background: rgba(15,23,42,0.85);
+          color: #e2e8f0;
+          font-weight: 700;
+          border-bottom: 1px solid rgba(148,163,184,0.2);
+      }
+      .modern-table tbody tr:nth-child(even) {
+          background: rgba(148,163,184,0.06);
+      }
+      .modern-table tbody tr:hover {
+          background: rgba(34,211,238,0.12);
+      }
+      .modern-badge {
+          background: rgba(34,211,238,0.14);
+          color: #22d3ee;
+          border-radius: 999px;
+          font-weight: 600;
+      }
 
       .q-dialog__backdrop {
           background: rgba(0,0,0,0.45) !important;
@@ -891,10 +1007,10 @@ def index():
 
     state = {'selected_pid': None, 'estado_filter': None, 'empresa_filter': None, 'q': ''}
 
-    with ui.header().classes('items-center justify-between').style('height:72px'):
+    with ui.header().classes('items-center justify-between app-header').style('height:72px'):
         with ui.row().classes('items-center gap-3'):
             ui.image(SIMA_LOGO_DATA_URL).style('height:54px; width:auto; object-fit:contain; display:block; border-radius:12px; background:rgba(255,255,255,0.90); padding:6px')
-            ui.label('🧠 Proveedores · Control Center').classes('text-lg title')
+            ui.label('🧠 Proveedores · Control Center').classes('text-lg title title-gradient')
         ui.label('Bandejas · Notas · Adjuntos · Export Excel').classes('text-sm muted')
 
     drawer = ui.left_drawer().classes('glass p-3').props('width=360 bordered')
@@ -904,9 +1020,9 @@ def index():
         nav_col = ui.column().classes('w-full')
         ui.separator()
         ui.label('⚡ Acciones rápidas').classes('text-sm title')
-        ui.button('📤 Exportar Excel (plantilla)', on_click=lambda: _open_export_dialog('excel')).props('unelevated').classes('w-full')
-        ui.button('🗂️ Exportar ZIP (PDF + adjuntos)', on_click=lambda: _open_export_dialog('zip')).props('unelevated').classes('w-full')
-        ui.button('➕ Nuevo proveedor', on_click=lambda: ui.run_javascript("document.querySelector('#new_supplier_btn')?.click()")).props('flat').classes('w-full')
+        ui.button('📤 Exportar Excel (plantilla)', on_click=lambda: _open_export_dialog('excel')).props('unelevated').classes('w-full btn-primary')
+        ui.button('🗂️ Exportar ZIP (PDF + adjuntos)', on_click=lambda: _open_export_dialog('zip')).props('unelevated').classes('w-full btn-secondary')
+        ui.button('➕ Nuevo proveedor', on_click=lambda: ui.run_javascript("document.querySelector('#new_supplier_btn')?.click()")).props('flat').classes('w-full btn-secondary')
     def _open_export_dialog(kind: str) -> None:
         title = 'Exportar Excel' if kind == 'excel' else 'Exportar ZIP (PDF + adjuntos)'
         dlg = ui.dialog()
@@ -949,23 +1065,23 @@ def index():
         # --- FIN DIÁLOGO ---
 
 
-    top_bar = ui.row().classes('w-full items-center gap-3 p-4')
+    top_bar = ui.row().classes('w-full items-center gap-3 p-4 top-bar')
     with top_bar:
         ui.button(icon='menu', on_click=drawer.toggle).props('flat')
         q_input = ui.input(placeholder='Buscar por código o nombre…').classes('flex-1')
         empresa_sel = ui.select(['TODAS'] + EMPRESAS, value='TODAS', label='Empresa').props('dense outlined').classes('w-[320px]')
-        ui.button('Limpiar', on_click=lambda: setattr(q_input, 'value', '')).props('flat')
-        refresh_btn = ui.button('Actualizar', icon='refresh').props('unelevated')
+        ui.button('Limpiar', on_click=lambda: setattr(q_input, 'value', '')).props('flat').classes('btn-secondary')
+        refresh_btn = ui.button('Actualizar', icon='refresh').props('unelevated').classes('btn-primary')
         # campana + badge (badge no debe capturar clicks)
-        notif_btn = ui.button(icon='notifications', on_click=lambda: _fire_and_forget(_open_notif_dialog())).props('flat')
+        notif_btn = ui.button(icon='notifications', on_click=lambda: _fire_and_forget(_open_notif_dialog())).props('flat').classes('btn-secondary')
         with notif_btn:
-            notif_badge = ui.badge('0').props('floating color=red').style('pointer-events:none')
+            notif_badge = ui.badge('0').props('floating color=red').classes('modern-badge').style('pointer-events:none')
         notif_badge.set_visibility(False)
 
     main_row = ui.row().classes('w-full gap-4 items-stretch p-4 pt-0')
     with main_row:
-        left_panel = ui.column().classes('glass p-4 flex-1')
-        right_panel = ui.column().classes('glass p-4 w-[560px] max-w-full')
+        left_panel = ui.column().classes('glass p-4 flex-1 panel')
+        right_panel = ui.column().classes('glass p-4 w-[560px] max-w-full panel')
 
     create_dialog = ui.dialog().props('transition-show="scale" transition-hide="scale"')
     with create_dialog:
@@ -990,8 +1106,8 @@ def index():
                 except Exception as e:
                     ui.notify(str(e), type='negative')
 
-            ui.button('GUARDAR', on_click=do_save_supplier).props('unelevated').classes('w-full')
-            ui.button('CERRAR', on_click=create_dialog.close).props('flat').classes('w-full')
+            ui.button('GUARDAR', on_click=do_save_supplier).props('unelevated').classes('w-full btn-primary')
+            ui.button('CERRAR', on_click=create_dialog.close).props('flat').classes('w-full btn-secondary')
 
     ui.button('', on_click=create_dialog.open).props('id=new_supplier_btn').style('display:none')
 
@@ -1019,8 +1135,8 @@ def index():
                 except Exception as e:
                     ui.notify(str(e), type='negative')
 
-            ui.button('GUARDAR CAMBIOS', on_click=do_update_supplier).props('unelevated').classes('w-full')
-            ui.button('CERRAR', on_click=edit_dialog.close).props('flat').classes('w-full')
+            ui.button('GUARDAR CAMBIOS', on_click=do_update_supplier).props('unelevated').classes('w-full btn-primary')
+            ui.button('CERRAR', on_click=edit_dialog.close).props('flat').classes('w-full btn-secondary')
 
     confirm_delete_dialog = ui.dialog().props('transition-show="scale" transition-hide="scale"')
     with confirm_delete_dialog:
@@ -1030,7 +1146,7 @@ def index():
             ui.separator()
             btn_row = ui.row().classes('w-full items-center justify-end gap-2')
             with btn_row:
-                ui.button('Cancelar', on_click=confirm_delete_dialog.close).props('flat')
+                ui.button('Cancelar', on_click=confirm_delete_dialog.close).props('flat').classes('btn-secondary')
 
                 def do_delete_supplier():
                     pid = state.get('selected_pid')
@@ -1053,8 +1169,8 @@ def index():
     with left_panel:
         header_row = ui.row().classes('w-full items-center justify-between')
         with header_row:
-            list_title = ui.label('📂 Proveedores').classes('text-base title')
-            badge_counts = ui.label('').classes('text-sm muted')
+            list_title = ui.label('📂 Proveedores').classes('text-base title section-title')
+            badge_counts = ui.label('').classes('text-sm muted chip')
 
         columns = [
             {'name': 'codigo', 'label': 'Código', 'field': 'codigo', 'align': 'left', 'sortable': True},
@@ -1065,21 +1181,21 @@ def index():
             {'name': 'dias', 'label': 'Días', 'field': 'dias', 'align': 'right', 'sortable': True},
         ]
 
-        table = ui.table(columns=columns, rows=[], row_key='id').classes('w-full').props(
+        table = ui.table(columns=columns, rows=[], row_key='id').classes('w-full modern-table').props(
             'dense flat bordered separator=horizontal selection=single'
         )
         ui.label('Tip: click en una fila para abrir el proveedor.').classes('text-sm muted')
 
     with right_panel:
-        detail_title = ui.label('Selecciona un proveedor').classes('text-base title')
+        detail_title = ui.label('Selecciona un proveedor').classes('text-base title section-title')
 
         actions_row = ui.row().classes('w-full items-center gap-2')
         with actions_row:
-            edit_btn = ui.button('✏️ Editar', icon='edit').props('flat')
-            delete_btn = ui.button('🗑️ Borrar', icon='delete').props('flat')
+            edit_btn = ui.button('✏️ Editar', icon='edit').props('flat').classes('btn-secondary')
+            delete_btn = ui.button('🗑️ Borrar', icon='delete').props('flat').classes('btn-secondary')
 
-        detail_estado = ui.badge('').props('outline').classes('mb-2')
-        detail_estado = ui.badge('').props('outline').classes('mb-2')
+        detail_estado = ui.badge('').props('outline').classes('mb-2 modern-badge')
+        detail_estado = ui.badge('').props('outline').classes('mb-2 modern-badge')
         detail_last_meta = ui.label('').classes('text-sm muted')
         detail_last_text = ui.markdown('')
 
