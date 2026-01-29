@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uned25 · Campus Digital de Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Uned25</div>
+    <nav>
+      <a href="#recursos">Biblioteca</a>
+      <a href="#herramientas">Herramientas</a>
+      <a href="#comunidad">Comunidad</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <button class="cta">Regístrate gratis</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__text">
+        <h1>Tu campus virtual para superar la prueba de acceso a la universidad</h1>
+        <p>
+          Sube tus apuntes, comparte libros con la comunidad y descubre herramientas
+          inteligentes que transforman tus materiales en resúmenes, tests y planes de estudio.
+        </p>
+        <div class="hero__actions">
+          <button class="btn primary">Crear cuenta</button>
+          <button class="btn secondary">Explorar biblioteca</button>
+        </div>
+        <div class="hero__metrics">
+          <div>
+            <span class="metric">12K+</span>
+            <span class="label">Estudiantes preparados</span>
+          </div>
+          <div>
+            <span class="metric">2.4K</span>
+            <span class="label">Apuntes compartidos</span>
+          </div>
+          <div>
+            <span class="metric">98%</span>
+            <span class="label">Tasa de satisfacción</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__card" aria-label="Panel de herramientas">
+        <div class="card card--gradient">
+          <h2>Panel de estudio inteligente</h2>
+          <form class="study-form" aria-label="Generador de plan">
+            <label for="hours">Horas disponibles</label>
+            <input id="hours" type="number" min="1" max="80" value="10" required />
+
+            <label for="subjects">Materias</label>
+            <input id="subjects" type="text" value="Lengua, Matemáticas, Historia" />
+
+            <button type="submit" class="btn primary small">Generar plan</button>
+          </form>
+          <div class="plan-output" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="recursos" class="section section--alt">
+      <div class="section__header">
+        <h2>Biblioteca viva de recursos</h2>
+        <p>Encuentra apuntes verificados, libros digitales y exámenes resueltos listos para descargar.</p>
+      </div>
+      <div class="cards-grid">
+        <article class="card resource">
+          <h3>Apuntes destacados</h3>
+          <p>Colecciones curadas por docentes y estudiantes con etiquetas por materia y nivel.</p>
+          <button class="btn ghost">Explorar apuntes</button>
+        </article>
+        <article class="card resource">
+          <h3>Libroteca colaborativa</h3>
+          <p>Libros digitales con licencias abiertas y comentarios de la comunidad para guiar tu estudio.</p>
+          <button class="btn ghost">Abrir libroteca</button>
+        </article>
+        <article class="card resource">
+          <h3>Exámenes anteriores</h3>
+          <p>Simulacros con cronómetro integrado y claves de corrección automáticas.</p>
+          <button class="btn ghost">Practicar examen</button>
+        </article>
+      </div>
+      <div class="upload">
+        <div>
+          <h3>Comparte tus materiales</h3>
+          <p>Sube tus apuntes o libros en PDF y conviértelos en herramientas interactivas en segundos.</p>
+        </div>
+        <form class="upload__form" aria-label="Subida de apuntes">
+          <label class="upload__dropzone">
+            <span>Arrastra y suelta o <strong>selecciona archivos</strong></span>
+            <input type="file" accept="application/pdf,.doc,.docx" multiple />
+          </label>
+          <button type="button" class="btn primary">Convertir en recursos</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="herramientas" class="section">
+      <div class="section__header">
+        <h2>Herramientas que piensan contigo</h2>
+        <p>Deja que la plataforma transforme tus apuntes en experiencias de aprendizaje personalizadas.</p>
+      </div>
+      <div class="tools">
+        <div class="card tool">
+          <h3>Resumidor inteligente</h3>
+          <p>Extrae ideas clave en niveles de detalle adaptados a tu tiempo disponible.</p>
+          <button class="btn secondary small" data-action="summary">Probar demo</button>
+        </div>
+        <div class="card tool">
+          <h3>Generador de flashcards</h3>
+          <p>Convierte definiciones en tarjetas listas para repasar con spaced-repetition.</p>
+          <button class="btn secondary small" data-action="flashcards">Crear tarjetas</button>
+        </div>
+        <div class="card tool">
+          <h3>Quiz adaptativo</h3>
+          <p>Crea cuestionarios que suben de dificultad según tus respuestas.</p>
+          <button class="btn secondary small" data-action="quiz">Lanzar quiz</button>
+        </div>
+      </div>
+      <div class="demo" aria-live="polite"></div>
+    </section>
+
+    <section id="comunidad" class="section section--alt">
+      <div class="section__header">
+        <h2>Comunidad acompañada por mentores</h2>
+        <p>Encuentra grupos de estudio, retos semanales y sesiones en directo con profesorado experto.</p>
+      </div>
+      <div class="community">
+        <div class="card community__item">
+          <h3>Grupos por materia</h3>
+          <p>Únete a canales temáticos moderados y comparte dudas en tiempo real.</p>
+        </div>
+        <div class="card community__item">
+          <h3>Mentorías 1:1</h3>
+          <p>Programa videollamadas personalizadas para reforzar contenidos clave.</p>
+        </div>
+        <div class="card community__item">
+          <h3>Retos gamificados</h3>
+          <p>Suma puntos, desbloquea badges y compite sanamente con tus compañeros.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="section__header">
+        <h2>Preguntas frecuentes</h2>
+        <p>Todo lo que necesitas saber para comenzar hoy mismo.</p>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>¿La plataforma es gratuita?</summary>
+          <p>El registro es gratuito e incluye acceso a la biblioteca colaborativa y herramientas básicas. Las suscripciones premium añaden analíticas avanzadas y mentorías ilimitadas.</p>
+        </details>
+        <details>
+          <summary>¿Cómo se garantiza la calidad del material?</summary>
+          <p>Cada aporte pasa por una revisión comunitaria y por docentes voluntarios. Los recursos verificados muestran un distintivo de confianza.</p>
+        </details>
+        <details>
+          <summary>¿Puedo descargar mis planes de estudio?</summary>
+          <p>Sí, puedes exportar planes, resúmenes y flashcards en PDF o integrarlos en Google Calendar y Notion.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__branding">
+      <span class="logo">Uned25</span>
+      <p>Tu puente hacia la universidad, diseñado para brillar en la prueba de acceso.</p>
+    </div>
+    <div class="footer__links">
+      <a href="#">Acerca de</a>
+      <a href="#">Blog</a>
+      <a href="#">Soporte</a>
+      <a href="#">Política de privacidad</a>
+    </div>
+    <p class="footer__copy">© 2024 Uned25. Hecho con ilusión para futuros universitarios.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
