@@ -1,0 +1,12 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Entrar · Vacaciones Pro</title><link rel="stylesheet" href="{% static 'vacations/css/app.css' %}"></head>
+<body class="login-body">
+  <section class="login-card">
+    <div class="brand big"><span>V</span><strong>Vacaciones Pro</strong></div>
+    <p>Accede al panel de solicitudes, PDFs y decisiones de dirección.</p>
+    <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary" type="submit">Entrar</button></form>
+  </section>
+</body>
+</html>
