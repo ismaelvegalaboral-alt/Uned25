@@ -1,6 +1,6 @@
 # Vacaciones Pro
 
-Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, fichas de trabajadores, histórico de solicitudes, administración y PDFs integrados.
+Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, fichas de trabajadores, histórico de solicitudes, calendario de solapes, administración y PDFs integrados.
 
 ## Funcionalidades
 
@@ -8,6 +8,8 @@ Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, f
 - Panel con métricas de trabajadores, pendientes, aprobadas y días gestionados.
 - Fichas de trabajador con departamento, puesto, email, DNI/NIE y días anuales.
 - Solicitud de vacaciones con validación de fechas y generación automática de PDF para firma del trabajador.
+- Calendario mensual para ver de un vistazo quién está de vacaciones y qué días tienen solapes.
+- Aviso automático al crear una solicitud si ya hay otras solicitudes activas en las mismas fechas.
 - Histórico filtrable por estado.
 - Resolución por dirección con PDF llamativo de decisión aprobada o denegada.
 - Admin de Django para gestión avanzada.
@@ -30,8 +32,9 @@ Después entra en `http://127.0.0.1:8000/` e inicia sesión con el superusuario.
 
 1. Crear fichas en **Fichas > Nueva ficha**.
 2. Registrar una solicitud en **Nueva solicitud**; la plataforma genera el PDF de solicitud para firma.
-3. Revisar la solicitud en dirección y pulsar **Resolver solicitud**.
-4. Descargar el PDF de resolución desde el detalle de la solicitud.
+3. Revisar **Calendario** para comprobar visualmente si el periodo coincide con otros trabajadores.
+4. Revisar la solicitud en dirección y pulsar **Resolver solicitud**.
+5. Descargar el PDF de resolución desde el detalle de la solicitud.
 
 ## Notas
 

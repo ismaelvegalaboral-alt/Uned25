@@ -44,3 +44,34 @@ class VacationPdfTests(TestCase):
 
         self.assertTrue(pdf.name.endswith('.pdf'))
         self.assertGreater(len(pdf.read()), 1000)
+
+
+class VacationCalendarTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='rrhh', password='test-pass')
+        self.employee_a = Employee.objects.create(first_name='Ana', last_name='López')
+        self.employee_b = Employee.objects.create(first_name='Luis', last_name='Pérez')
+
+    def test_calendar_marks_overlap_days(self):
+        VacationRequest.objects.create(
+            employee=self.employee_a,
+            start_date=date(2026, 8, 3),
+            end_date=date(2026, 8, 7),
+            requested_days=5,
+            created_by=self.user,
+        )
+        VacationRequest.objects.create(
+            employee=self.employee_b,
+            start_date=date(2026, 8, 5),
+            end_date=date(2026, 8, 10),
+            requested_days=4,
+            created_by=self.user,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get('/calendario/?year=2026&month=8')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Agosto 2026')
+        self.assertContains(response, 'Solape')
+        self.assertEqual(response.context['overlap_days'], 3)
