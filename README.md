@@ -1,1 +1,38 @@
-# Uned25
+# Vacaciones Pro
+
+Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, fichas de trabajadores, histórico de solicitudes, administración y PDFs integrados.
+
+## Funcionalidades
+
+- Login con el sistema de autenticación de Django.
+- Panel con métricas de trabajadores, pendientes, aprobadas y días gestionados.
+- Fichas de trabajador con departamento, puesto, email, DNI/NIE y días anuales.
+- Solicitud de vacaciones con validación de fechas y generación automática de PDF para firma del trabajador.
+- Histórico filtrable por estado.
+- Resolución por dirección con PDF llamativo de decisión aprobada o denegada.
+- Admin de Django para gestión avanzada.
+- Documentos guardados en `media/vacation_documents/` y enlazados desde cada solicitud.
+
+## Puesta en marcha
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+Después entra en `http://127.0.0.1:8000/` e inicia sesión con el superusuario.
+
+## Flujo recomendado
+
+1. Crear fichas en **Fichas > Nueva ficha**.
+2. Registrar una solicitud en **Nueva solicitud**; la plataforma genera el PDF de solicitud para firma.
+3. Revisar la solicitud en dirección y pulsar **Resolver solicitud**.
+4. Descargar el PDF de resolución desde el detalle de la solicitud.
+
+## Notas
+
+El proyecto conserva `definitiva9.py` como herramienta previa del repositorio, pero la nueva plataforma de vacaciones se ejecuta mediante Django con `manage.py`.
