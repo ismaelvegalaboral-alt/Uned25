@@ -1,0 +1,50 @@
+{% extends 'vacations/base.html' %}
+{% block title %}Calendario · Vacaciones Pro{% endblock %}
+{% block content %}
+<header class="hero calendar-hero">
+  <div>
+    <p>Vista rápida de vacaciones</p>
+    <h1>{{ month_name }}</h1>
+    <span>{{ overlap_days }} día{{ overlap_days|pluralize }} con posibles solapes este mes</span>
+  </div>
+  <div class="calendar-actions">
+    <a class="primary ghost" href="{% url 'vacation_calendar' %}?year={{ month_info.previous.year }}&month={{ month_info.previous.month }}">← Mes anterior</a>
+    <a class="primary" href="{% url 'vacation_calendar' %}?year={{ month_info.next.year }}&month={{ month_info.next.month }}">Mes siguiente →</a>
+  </div>
+</header>
+
+<section class="calendar-shell">
+  <div class="calendar-weekdays">
+    {% for weekday in weekdays %}<strong>{{ weekday }}</strong>{% endfor %}
+  </div>
+  <div class="calendar-grid">
+    {% for week in weeks %}
+      {% for day in week %}
+        <article class="calendar-day {% if not day.in_month %}muted-day{% endif %} {% if day.has_overlap %}overlap-day{% endif %}">
+          <div class="day-top">
+            <strong>{{ day.date.day }}</strong>
+            {% if day.has_overlap %}<span>Solape</span>{% endif %}
+          </div>
+          <div class="day-events">
+            {% for vacation_request in day.requests %}
+              <a class="calendar-event {{ vacation_request.status }}" href="{% url 'request_detail' vacation_request.pk %}" title="{{ vacation_request.employee.full_name }}">
+                {{ vacation_request.employee.full_name }}
+              </a>
+            {% empty %}
+              <em>Libre</em>
+            {% endfor %}
+          </div>
+        </article>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card calendar-legend">
+  <h2>Leyenda</h2>
+  <span class="legend pending">Pendiente</span>
+  <span class="legend approved">Aprobada</span>
+  <span class="legend draft">Borrador</span>
+  <span class="legend overlap">Solape: dos o más trabajadores en vacaciones el mismo día</span>
+</section>
+{% endblock %}
