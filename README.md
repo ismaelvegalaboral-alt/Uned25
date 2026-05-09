@@ -13,7 +13,7 @@ Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, f
 - Histórico filtrable por estado.
 - Resolución por dirección con PDF llamativo de decisión aprobada o denegada.
 - Admin de Django para gestión avanzada.
-- Documentos guardados en `media/vacation_documents/`; la carpeta queda versionada para poder subir a GitHub PDFs/documentos que quieras conservar en el repositorio. Los botones de descarga regeneran el PDF con la plantilla profesional vigente, ya con logo corporativo Kalpae Ibérica y un diseño ajustado para que los bloques no se pisen.
+- Documentos guardados en `media/vacation_documents/` y enlazados desde cada solicitud.
 
 ## Puesta en marcha
 
@@ -34,7 +34,7 @@ Después entra en `http://127.0.0.1:8000/` e inicia sesión con el superusuario.
 2. Registrar una solicitud en **Nueva solicitud**; la plataforma genera el PDF de solicitud para firma.
 3. Revisar **Calendario** para comprobar visualmente si el periodo coincide con otros trabajadores.
 4. Revisar la solicitud en dirección y pulsar **Resolver solicitud**.
-5. Descargar el PDF de solicitud o resolución desde el detalle; cada descarga reconstruye el documento y actualiza el archivo archivado en `media/vacation_documents/`. Si quieres que esos PDFs suban a GitHub, añádelos con `git add media/vacation_documents/*.pdf` antes de hacer commit.
+5. Descargar el PDF de resolución desde el detalle de la solicitud.
 
 ## Notas
 

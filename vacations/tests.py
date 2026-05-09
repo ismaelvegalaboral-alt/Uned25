@@ -26,24 +26,6 @@ class VacationPdfTests(TestCase):
         self.assertTrue(pdf.name.endswith('.pdf'))
         self.assertGreater(len(pdf.read()), 1000)
 
-    def test_request_pdf_download_regenerates_document(self):
-        vacation_request = VacationRequest.objects.create(
-            employee=self.employee,
-            start_date=date(2026, 8, 3),
-            end_date=date(2026, 8, 14),
-            requested_days=10,
-            created_by=self.user,
-        )
-        self.client.force_login(self.user)
-
-        response = self.client.get(f'/solicitudes/{vacation_request.pk}/pdf/solicitud/')
-
-        vacation_request.refresh_from_db()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
-        self.assertIn('attachment;', response['Content-Disposition'])
-        self.assertTrue(vacation_request.request_pdf.name.endswith('.pdf'))
-
     def test_decision_pdf_is_generated(self):
         vacation_request = VacationRequest.objects.create(
             employee=self.employee,
@@ -62,29 +44,6 @@ class VacationPdfTests(TestCase):
 
         self.assertTrue(pdf.name.endswith('.pdf'))
         self.assertGreater(len(pdf.read()), 1000)
-
-    def test_decision_pdf_download_regenerates_document(self):
-        vacation_request = VacationRequest.objects.create(
-            employee=self.employee,
-            start_date=date(2026, 8, 3),
-            end_date=date(2026, 8, 14),
-            requested_days=10,
-            created_by=self.user,
-        )
-        VacationDecision.objects.create(
-            request=vacation_request,
-            decision=VacationDecision.Decision.APPROVED,
-            decided_by=self.user,
-        )
-        self.client.force_login(self.user)
-
-        response = self.client.get(f'/solicitudes/{vacation_request.pk}/pdf/decision/')
-
-        vacation_request.refresh_from_db()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
-        self.assertIn('attachment;', response['Content-Disposition'])
-        self.assertTrue(vacation_request.decision.decision_pdf.name.endswith('.pdf'))
 
 
 class VacationCalendarTests(TestCase):

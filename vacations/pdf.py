@@ -9,151 +9,131 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 
 PAGE_W, PAGE_H = A4
+NAVY = colors.HexColor('#111827')
+BLUE = colors.HexColor('#2563eb')
+BLUE_DARK = colors.HexColor('#1e40af')
+SKY = colors.HexColor('#e0f2fe')
+INK = colors.HexColor('#172033')
+MUTED = colors.HexColor('#667085')
+LINE = colors.HexColor('#d0d5dd')
+PAPER = colors.HexColor('#fbfcff')
+SOFT = colors.HexColor('#f3f6fb')
+GOLD = colors.HexColor('#d99a25')
+GREEN = colors.HexColor('#129448')
+GREEN_SOFT = colors.HexColor('#e8f8ee')
+RED = colors.HexColor('#c92828')
+RED_SOFT = colors.HexColor('#fdecec')
+
 MARGIN = 18 * mm
-CONTENT_W = PAGE_W - 2 * MARGIN
-NAVY = colors.HexColor('#1d2a57')
-GOLD = colors.HexColor('#ffb000')
-BLUE = colors.HexColor('#1d4ed8')
-BLUE_SOFT = colors.HexColor('#eff6ff')
-INK = colors.HexColor('#111827')
-SLATE = colors.HexColor('#475569')
-MUTED = colors.HexColor('#94a3b8')
-LINE = colors.HexColor('#dbe4f0')
-PAPER = colors.HexColor('#f8fafc')
-WHITE = colors.white
-GREEN = colors.HexColor('#15803d')
-GREEN_SOFT = colors.HexColor('#ecfdf3')
-RED = colors.HexColor('#b91c1c')
-RED_SOFT = colors.HexColor('#fef2f2')
-AMBER_SOFT = colors.HexColor('#fff7ed')
+CONTENT_LEFT = 43 * mm
+CONTENT_RIGHT = PAGE_W - MARGIN
+CONTENT_W = CONTENT_RIGHT - CONTENT_LEFT
 
 
 def _set_doc_info(pdf: canvas.Canvas, title: str) -> None:
     pdf.setTitle(title)
-    pdf.setAuthor('Kalpae Ibérica')
+    pdf.setAuthor('Vacaciones Pro')
     pdf.setSubject('Gestión documental de vacaciones')
     pdf.setCreator('Vacaciones Pro · Django + ReportLab')
 
 
-def _txt(pdf: canvas.Canvas, x: float, y: float, value: str, size: float = 9, color=INK, font: str = 'Helvetica') -> None:
+def _text(pdf: canvas.Canvas, x: float, y: float, value: str, size: int = 10, color=INK, font: str = 'Helvetica') -> None:
     pdf.setFillColor(color)
     pdf.setFont(font, size)
-    pdf.drawString(x, y, str(value or '—'))
+    pdf.drawString(x, y, value)
 
 
-def _right(pdf: canvas.Canvas, x: float, y: float, value: str, size: float = 9, color=INK, font: str = 'Helvetica') -> None:
+def _center(pdf: canvas.Canvas, x: float, y: float, value: str, size: int = 10, color=INK, font: str = 'Helvetica') -> None:
     pdf.setFillColor(color)
     pdf.setFont(font, size)
-    pdf.drawRightString(x, y, str(value or '—'))
+    pdf.drawCentredString(x, y, value)
 
 
-def _center(pdf: canvas.Canvas, x: float, y: float, value: str, size: float = 9, color=INK, font: str = 'Helvetica') -> None:
+def _right(pdf: canvas.Canvas, x: float, y: float, value: str, size: int = 10, color=INK, font: str = 'Helvetica') -> None:
     pdf.setFillColor(color)
     pdf.setFont(font, size)
-    pdf.drawCentredString(x, y, str(value or '—'))
+    pdf.drawRightString(x, y, value)
 
 
-def _rounded(pdf: canvas.Canvas, x: float, y: float, w: float, h: float, fill=WHITE, stroke=LINE, radius: float = 4 * mm, width: float = 0.7) -> None:
-    pdf.setFillColor(fill)
-    pdf.setStrokeColor(stroke)
-    pdf.setLineWidth(width)
-    pdf.roundRect(x, y, w, h, radius, fill=True, stroke=True)
+def _wrapped(pdf: canvas.Canvas, x: float, y: float, value: str, chars: int, max_lines: int, size: int = 9, color=MUTED) -> float:
+    pdf.setFont('Helvetica', size)
+    pdf.setFillColor(color)
+    lines = []
+    for raw_line in (value or '').splitlines() or ['']:
+        lines.extend(wrap(raw_line, chars) or [''])
+    for line in lines[:max_lines]:
+        pdf.drawString(x, y, line)
+        y -= 5 * mm
+    return y
 
 
-def _line(pdf: canvas.Canvas, x: float, y: float, w: float, color=LINE, width: float = 0.6) -> None:
+def _rule(pdf: canvas.Canvas, x: float, y: float, w: float, color=LINE) -> None:
     pdf.setStrokeColor(color)
-    pdf.setLineWidth(width)
+    pdf.setLineWidth(0.6)
     pdf.line(x, y, x + w, y)
 
 
-def _wrap_lines(value: str, chars: int, max_lines: int) -> list[str]:
-    rows = []
-    for raw in (value or '—').splitlines() or ['—']:
-        rows.extend(wrap(raw, chars) or [''])
-    return rows[:max_lines]
-
-
-def _wrapped(pdf: canvas.Canvas, x: float, y: float, value: str, chars: int, max_lines: int, size: float = 8.5, color=SLATE, leading: float = 4.6 * mm) -> None:
-    pdf.setFillColor(color)
-    pdf.setFont('Helvetica', size)
-    for row in _wrap_lines(value, chars, max_lines):
-        pdf.drawString(x, y, row)
-        y -= leading
-
-
-def _draw_kalpae_logo(pdf: canvas.Canvas, x: float, y: float, width: float) -> None:
-    """Draw a compact vector version of the Kalpae Ibérica logo for PDFs."""
-    icon = width * 0.18
-    height = icon * 0.84
-    pdf.saveState()
-    pdf.setFillColor(NAVY)
-    pdf.rect(x, y, icon * 0.20, height, fill=True, stroke=False)
-    pdf.setFillColor(GOLD)
-    pdf.rect(x + icon * 0.72, y + height * 0.18, icon * 0.20, height * 0.64, fill=True, stroke=False)
-    pdf.setFillColor(GOLD)
-    pdf.roundRect(x + icon * 0.31, y + height * 0.55, icon * 0.48, height * 0.34, 1.2 * mm, fill=True, stroke=False)
-    pdf.setFillColor(NAVY)
-    pdf.roundRect(x + icon * 0.28, y + height * 0.36, icon * 0.54, height * 0.20, 1.2 * mm, fill=True, stroke=False)
-    pdf.roundRect(x + icon * 0.30, y + height * 0.02, icon * 0.50, height * 0.22, 1.2 * mm, fill=True, stroke=False)
-    pdf.setStrokeColor(WHITE)
-    pdf.setLineWidth(2.2)
-    pdf.line(x + icon * 0.20, y + height * 0.06, x + icon * 0.86, y + height * 0.86)
-
-    text_x = x + icon + width * 0.04
-    pdf.setFillColor(NAVY)
-    pdf.setFont('Helvetica-Bold', max(13, width / mm * 0.55))
-    pdf.drawString(text_x, y + height * 0.37, 'KALPAE')
-    pdf.setFillColor(GOLD)
-    pdf.setFont('Helvetica-Bold', max(6.5, width / mm * 0.22))
-    pdf.drawString(text_x + width * 0.02, y + height * 0.10, 'IBÉRICA')
-    pdf.restoreState()
-
-
-def _header(pdf: canvas.Canvas, reference: str, title: str, subtitle: str, accent=BLUE) -> None:
+def _page_base(pdf: canvas.Canvas, reference: str, document_type: str, accent=BLUE) -> None:
     pdf.setFillColor(PAPER)
     pdf.rect(0, 0, PAGE_W, PAGE_H, fill=True, stroke=False)
-    pdf.setFillColor(WHITE)
-    pdf.rect(0, PAGE_H - 42 * mm, PAGE_W, 42 * mm, fill=True, stroke=False)
-    _draw_kalpae_logo(pdf, MARGIN, PAGE_H - 32 * mm, 74 * mm)
-    _right(pdf, PAGE_W - MARGIN, PAGE_H - 22 * mm, reference, 8.5, SLATE, 'Helvetica-Bold')
-    _right(pdf, PAGE_W - MARGIN, PAGE_H - 29 * mm, 'Vacaciones Pro', 7.2, MUTED)
-    _line(pdf, MARGIN, PAGE_H - 44 * mm, CONTENT_W)
-    _txt(pdf, MARGIN, PAGE_H - 59 * mm, title, 19, INK, 'Helvetica-Bold')
-    _wrapped(pdf, MARGIN, PAGE_H - 68 * mm, subtitle, 118, 2, 8.2, SLATE, 4 * mm)
+    pdf.setFillColor(NAVY)
+    pdf.rect(0, 0, 31 * mm, PAGE_H, fill=True, stroke=False)
     pdf.setFillColor(accent)
-    pdf.rect(MARGIN, PAGE_H - 75 * mm, 26 * mm, 1.4 * mm, fill=True, stroke=False)
+    pdf.rect(31 * mm, 0, 2.5 * mm, PAGE_H, fill=True, stroke=False)
+
+    pdf.setFillColor(colors.white)
+    pdf.circle(15.5 * mm, PAGE_H - 26 * mm, 9 * mm, fill=True, stroke=False)
+    _center(pdf, 15.5 * mm, PAGE_H - 29 * mm, 'VP', 12, NAVY, 'Helvetica-Bold')
+
+    pdf.saveState()
+    pdf.translate(14 * mm, PAGE_H / 2)
+    pdf.rotate(90)
+    _center(pdf, 0, 0, 'VACACIONES PRO', 8, colors.HexColor('#dbeafe'), 'Helvetica-Bold')
+    pdf.restoreState()
+
+    _text(pdf, CONTENT_LEFT, PAGE_H - 25 * mm, document_type.upper(), 8, accent, 'Helvetica-Bold')
+    _right(pdf, CONTENT_RIGHT, PAGE_H - 25 * mm, reference, 9, MUTED, 'Helvetica-Bold')
+    _rule(pdf, CONTENT_LEFT, PAGE_H - 30 * mm, CONTENT_W)
 
 
-def _section_title(pdf: canvas.Canvas, x: float, y: float, number: str, title: str, accent=BLUE) -> None:
+def _field(pdf: canvas.Canvas, x: float, y: float, label: str, value: str, w: float) -> None:
+    _text(pdf, x, y + 5 * mm, label.upper(), 6.5, MUTED, 'Helvetica-Bold')
+    _text(pdf, x, y - 1 * mm, value or '—', 10, INK, 'Helvetica-Bold')
+    _rule(pdf, x, y - 4 * mm, w, colors.HexColor('#e5e7eb'))
+
+
+def _section(pdf: canvas.Canvas, y: float, number: str, title: str, accent=BLUE) -> float:
     pdf.setFillColor(accent)
-    pdf.circle(x + 3 * mm, y + 1 * mm, 3.4 * mm, fill=True, stroke=False)
-    _center(pdf, x + 3 * mm, y - 1.2 * mm, number, 6.2, WHITE, 'Helvetica-Bold')
-    _txt(pdf, x + 10 * mm, y - 1.4 * mm, title, 11.2, INK, 'Helvetica-Bold')
+    pdf.circle(CONTENT_LEFT + 4 * mm, y + 1.5 * mm, 4 * mm, fill=True, stroke=False)
+    _center(pdf, CONTENT_LEFT + 4 * mm, y - 1 * mm, number, 7, colors.white, 'Helvetica-Bold')
+    _text(pdf, CONTENT_LEFT + 12 * mm, y - 1 * mm, title, 13, INK, 'Helvetica-Bold')
+    return y - 12 * mm
 
 
-def _field(pdf: canvas.Canvas, x: float, y: float, w: float, label: str, value: str, accent=BLUE) -> None:
-    _txt(pdf, x, y + 7 * mm, label.upper(), 6.2, accent, 'Helvetica-Bold')
-    _wrapped(pdf, x, y, value or '—', max(16, int(w / mm * 0.9)), 2, 8.6, INK, 3.7 * mm)
-    _line(pdf, x, y - 5 * mm, w, colors.HexColor('#e7edf5'))
+def _soft_box(pdf: canvas.Canvas, x: float, y: float, w: float, h: float, fill=SOFT, stroke=LINE, radius=4 * mm) -> None:
+    pdf.setFillColor(fill)
+    pdf.setStrokeColor(stroke)
+    pdf.setLineWidth(0.8)
+    pdf.roundRect(x, y, w, h, radius, fill=True, stroke=True)
 
 
-def _metric(pdf: canvas.Canvas, x: float, y: float, w: float, label: str, value: str, accent=BLUE) -> None:
-    _rounded(pdf, x, y, w, 25 * mm, WHITE, colors.HexColor('#cfe0f7'), 3.5 * mm)
-    _txt(pdf, x + 5 * mm, y + 16.3 * mm, label.upper(), 6.2, SLATE, 'Helvetica-Bold')
-    _txt(pdf, x + 5 * mm, y + 7 * mm, value, 13, accent, 'Helvetica-Bold')
-
-
-def _signature(pdf: canvas.Canvas, x: float, y: float, w: float, title: str) -> None:
-    _rounded(pdf, x, y, w, 28 * mm, WHITE, colors.HexColor('#d5deeb'), 3.5 * mm)
-    _line(pdf, x + 8 * mm, y + 15 * mm, w - 16 * mm, colors.HexColor('#9aa8ba'), 0.7)
-    _center(pdf, x + w / 2, y + 8 * mm, title, 8, INK, 'Helvetica-Bold')
-    _center(pdf, x + w / 2, y + 4 * mm, 'Firma y fecha', 6.6, SLATE)
+def _signature(pdf: canvas.Canvas, x: float, y: float, title: str, subtitle: str, w: float = 62 * mm) -> None:
+    _soft_box(pdf, x, y, w, 28 * mm, colors.white, LINE)
+    _rule(pdf, x + 8 * mm, y + 16 * mm, w - 16 * mm, colors.HexColor('#98a2b3'))
+    _center(pdf, x + w / 2, y + 8 * mm, title, 8.5, INK, 'Helvetica-Bold')
+    _center(pdf, x + w / 2, y + 4 * mm, subtitle, 6.5, MUTED)
 
 
 def _footer(pdf: canvas.Canvas, reference: str) -> None:
-    _line(pdf, MARGIN, 18 * mm, CONTENT_W, colors.HexColor('#e7edf5'))
-    _txt(pdf, MARGIN, 11.5 * mm, 'Documento generado automáticamente y archivado en Vacaciones Pro.', 6.5, MUTED)
-    _right(pdf, PAGE_W - MARGIN, 11.5 * mm, reference, 6.5, SLATE, 'Helvetica-Bold')
+    _rule(pdf, CONTENT_LEFT, 17 * mm, CONTENT_W, colors.HexColor('#e5e7eb'))
+    _text(pdf, CONTENT_LEFT, 11 * mm, 'Documento generado automáticamente y archivado en Vacaciones Pro.', 7, MUTED)
+    _right(pdf, CONTENT_RIGHT, 11 * mm, reference, 7, MUTED, 'Helvetica-Bold')
+
+
+def _period_tile(pdf: canvas.Canvas, x: float, y: float, label: str, value: str, accent=BLUE) -> None:
+    _soft_box(pdf, x, y, 44 * mm, 29 * mm, colors.white, colors.HexColor('#dbeafe'))
+    _text(pdf, x + 5 * mm, y + 19 * mm, label.upper(), 7, MUTED, 'Helvetica-Bold')
+    _text(pdf, x + 5 * mm, y + 8 * mm, value, 15, accent, 'Helvetica-Bold')
 
 
 def build_request_pdf(vacation_request) -> ContentFile:
@@ -161,78 +141,93 @@ def build_request_pdf(vacation_request) -> ContentFile:
     pdf = canvas.Canvas(buffer, pagesize=A4)
     employee = vacation_request.employee
     reference = f'SOL-{vacation_request.pk:05d}'
-    generated_at = timezone.localtime().strftime('%d/%m/%Y · %H:%M')
+    generated = timezone.localtime().strftime('%d/%m/%Y · %H:%M')
 
     _set_doc_info(pdf, f'Solicitud de vacaciones {reference}')
-    _header(
-        pdf,
-        reference,
-        'Solicitud formal de vacaciones',
-        'Documento para revisión interna, firma del trabajador y archivo en Recursos Humanos.',
-        BLUE,
-    )
+    _page_base(pdf, reference, 'Solicitud de vacaciones', BLUE)
 
-    y = PAGE_H - 91 * mm
-    _section_title(pdf, MARGIN, y, '1', 'Identificación del trabajador')
-    _rounded(pdf, MARGIN, y - 39 * mm, CONTENT_W, 30 * mm, WHITE, LINE, 4 * mm)
-    _field(pdf, MARGIN + 7 * mm, y - 25 * mm, 58 * mm, 'Trabajador', employee.full_name)
-    _field(pdf, MARGIN + 73 * mm, y - 25 * mm, 37 * mm, 'DNI/NIE', employee.national_id)
-    _field(pdf, MARGIN + 118 * mm, y - 25 * mm, 40 * mm, 'Departamento', employee.department)
-
-    y = PAGE_H - 143 * mm
-    _section_title(pdf, MARGIN, y, '2', 'Periodo solicitado')
-    gap = 10 * mm
-    metric_w = (CONTENT_W - 2 * gap) / 3
-    _metric(pdf, MARGIN, y - 36 * mm, metric_w, 'Inicio', vacation_request.start_date.strftime('%d/%m/%Y'))
-    _metric(pdf, MARGIN + metric_w + gap, y - 36 * mm, metric_w, 'Fin', vacation_request.end_date.strftime('%d/%m/%Y'))
-    _metric(pdf, MARGIN + 2 * (metric_w + gap), y - 36 * mm, metric_w, 'Días', f'{vacation_request.requested_days:g}')
-
-    y = PAGE_H - 195 * mm
-    _section_title(pdf, MARGIN, y, '3', 'Declaración y observaciones')
-    _rounded(pdf, MARGIN, y - 48 * mm, CONTENT_W, 38 * mm, WHITE, LINE, 4 * mm)
-    _txt(pdf, MARGIN + 7 * mm, y - 22 * mm, 'Declaración', 7.2, BLUE, 'Helvetica-Bold')
+    _text(pdf, CONTENT_LEFT, PAGE_H - 48 * mm, 'Solicitud formal de vacaciones', 24, INK, 'Helvetica-Bold')
     _wrapped(
         pdf,
-        MARGIN + 7 * mm,
-        y - 31 * mm,
-        'La persona trabajadora solicita disfrutar el periodo indicado y se compromete a firmar este documento para su tramitación interna.',
-        112,
+        CONTENT_LEFT,
+        PAGE_H - 57 * mm,
+        'Documento preparado para revisión interna, firma del trabajador y archivo de Recursos Humanos.',
+        84,
         2,
-        8,
-        INK,
-        4 * mm,
+        9,
+        MUTED,
     )
-    _txt(pdf, MARGIN + 7 * mm, y - 42 * mm, 'Observaciones:', 7, SLATE, 'Helvetica-Bold')
-    _wrapped(pdf, MARGIN + 36 * mm, y - 42 * mm, vacation_request.notes or 'Sin observaciones.', 82, 1, 7.8, SLATE)
+    pdf.setFillColor(SKY)
+    pdf.roundRect(CONTENT_RIGHT - 52 * mm, PAGE_H - 56 * mm, 52 * mm, 13 * mm, 6.5 * mm, fill=True, stroke=False)
+    _center(pdf, CONTENT_RIGHT - 26 * mm, PAGE_H - 51 * mm, 'PENDIENTE DE FIRMA', 8, BLUE_DARK, 'Helvetica-Bold')
 
-    _txt(pdf, MARGIN, 62 * mm, 'Firmas', 11.2, INK, 'Helvetica-Bold')
-    sig_w = 72 * mm
-    _signature(pdf, MARGIN, 29 * mm, sig_w, 'Trabajador/a')
-    _signature(pdf, PAGE_W - MARGIN - sig_w, 29 * mm, sig_w, 'Recepción empresa')
+    y = PAGE_H - 84 * mm
+    y = _section(pdf, y, '1', 'Identificación del trabajador')
+    _soft_box(pdf, CONTENT_LEFT, y - 24 * mm, CONTENT_W, 31 * mm, colors.white, colors.HexColor('#e2e8f0'))
+    _field(pdf, CONTENT_LEFT + 7 * mm, y - 5 * mm, 'Trabajador', employee.full_name, 63 * mm)
+    _field(pdf, CONTENT_LEFT + 79 * mm, y - 5 * mm, 'DNI/NIE', employee.national_id, 40 * mm)
+    _field(pdf, CONTENT_LEFT + 126 * mm, y - 5 * mm, 'Departamento', employee.department, 39 * mm)
+    _field(pdf, CONTENT_LEFT + 7 * mm, y - 20 * mm, 'Puesto', employee.position, 74 * mm)
+    _field(pdf, CONTENT_LEFT + 91 * mm, y - 20 * mm, 'Fecha de emisión', generated, 74 * mm)
+
+    y -= 49 * mm
+    y = _section(pdf, y, '2', 'Periodo solicitado')
+    _period_tile(pdf, CONTENT_LEFT, y - 27 * mm, 'Inicio', vacation_request.start_date.strftime('%d/%m/%Y'))
+    _period_tile(pdf, CONTENT_LEFT + 53 * mm, y - 27 * mm, 'Fin', vacation_request.end_date.strftime('%d/%m/%Y'))
+    _period_tile(pdf, CONTENT_LEFT + 106 * mm, y - 27 * mm, 'Días', f'{vacation_request.requested_days:g}')
+
+    y -= 54 * mm
+    y = _section(pdf, y, '3', 'Declaración y observaciones')
+    _soft_box(pdf, CONTENT_LEFT, y - 44 * mm, CONTENT_W, 48 * mm, colors.white, colors.HexColor('#e2e8f0'))
+    _text(pdf, CONTENT_LEFT + 8 * mm, y - 8 * mm, 'Declaración', 9, BLUE_DARK, 'Helvetica-Bold')
+    _wrapped(
+        pdf,
+        CONTENT_LEFT + 8 * mm,
+        y - 16 * mm,
+        'La persona trabajadora solicita disfrutar el periodo indicado y se compromete a firmar este documento para su tramitación interna.',
+        100,
+        3,
+        8.5,
+        INK,
+    )
+    _text(pdf, CONTENT_LEFT + 8 * mm, y - 33 * mm, 'Observaciones', 8.5, MUTED, 'Helvetica-Bold')
+    _wrapped(pdf, CONTENT_LEFT + 38 * mm, y - 33 * mm, vacation_request.notes or 'Sin observaciones.', 77, 2, 8.5, MUTED)
+
+    y -= 68 * mm
+    y = _section(pdf, y, '4', 'Firmas')
+    _signature(pdf, CONTENT_LEFT, y - 31 * mm, 'Firma del trabajador', 'Nombre, firma y fecha')
+    _signature(pdf, CONTENT_RIGHT - 62 * mm, y - 31 * mm, 'Recepción empresa', 'Sello, firma y fecha')
 
     _footer(pdf, reference)
     pdf.showPage()
     pdf.save()
 
-    return ContentFile(buffer.getvalue(), name=f'solicitud_vacaciones_{vacation_request.pk}.pdf')
+    filename = f'solicitud_vacaciones_{vacation_request.pk}.pdf'
+    return ContentFile(buffer.getvalue(), name=filename)
 
 
-def _decision_status_box(pdf: canvas.Canvas, decision_label: str, approved: bool) -> tuple:
-    accent = GREEN if approved else RED
-    soft = GREEN_SOFT if approved else RED_SOFT
+def _decision_header(pdf: canvas.Canvas, reference: str, status_label: str, accent, soft) -> None:
+    pdf.setFillColor(PAPER)
+    pdf.rect(0, 0, PAGE_W, PAGE_H, fill=True, stroke=False)
+    pdf.setStrokeColor(accent)
+    pdf.setLineWidth(2)
+    pdf.roundRect(MARGIN, MARGIN, PAGE_W - 2 * MARGIN, PAGE_H - 2 * MARGIN, 6 * mm, fill=False, stroke=True)
+    pdf.setStrokeColor(colors.HexColor('#e5e7eb'))
+    pdf.setLineWidth(0.8)
+    pdf.roundRect(MARGIN + 4 * mm, MARGIN + 4 * mm, PAGE_W - 2 * MARGIN - 8 * mm, PAGE_H - 2 * MARGIN - 8 * mm, 4 * mm, fill=False, stroke=True)
+
     pdf.setFillColor(soft)
-    pdf.setStrokeColor(colors.HexColor('#d8e2ef'))
-    pdf.setLineWidth(0.7)
-    pdf.roundRect(MARGIN, PAGE_H - 91 * mm, CONTENT_W, 29 * mm, 5 * mm, fill=True, stroke=True)
-    _center(pdf, PAGE_W / 2, PAGE_H - 75 * mm, f'RESOLUCIÓN {decision_label.upper()}', 19, accent, 'Helvetica-Bold')
-    _center(pdf, PAGE_W / 2, PAGE_H - 84 * mm, 'Comunicación formal de la decisión de la empresa', 8.2, SLATE)
-    return accent, soft
+    pdf.roundRect(31 * mm, PAGE_H - 68 * mm, PAGE_W - 62 * mm, 33 * mm, 8 * mm, fill=True, stroke=False)
+    _center(pdf, PAGE_W / 2, PAGE_H - 47 * mm, f'RESOLUCIÓN {status_label.upper()}', 23, accent, 'Helvetica-Bold')
+    _center(pdf, PAGE_W / 2, PAGE_H - 57 * mm, 'Decisión de la empresa sobre la solicitud de vacaciones', 9, MUTED)
+    _text(pdf, 31 * mm, PAGE_H - 28 * mm, 'VACACIONES PRO', 8, NAVY, 'Helvetica-Bold')
+    _right(pdf, PAGE_W - 31 * mm, PAGE_H - 28 * mm, reference, 9, MUTED, 'Helvetica-Bold')
 
 
-def _decision_field(pdf: canvas.Canvas, x: float, y: float, w: float, label: str, value: str, accent) -> None:
-    _txt(pdf, x, y + 7 * mm, label.upper(), 6, accent, 'Helvetica-Bold')
-    _wrapped(pdf, x, y, value or '—', max(16, int(w / mm * 0.9)), 2, 8.4, INK, 3.7 * mm)
-    _line(pdf, x, y - 5 * mm, w, colors.HexColor('#e7edf5'))
+def _decision_row(pdf: canvas.Canvas, y: float, label: str, value: str, x: float, w: float) -> None:
+    _text(pdf, x, y + 4 * mm, label.upper(), 6.5, MUTED, 'Helvetica-Bold')
+    _text(pdf, x, y - 2 * mm, value or '—', 10, INK, 'Helvetica-Bold')
+    _rule(pdf, x, y - 5 * mm, w, colors.HexColor('#e5e7eb'))
 
 
 def build_decision_pdf(decision) -> ContentFile:
@@ -241,47 +236,41 @@ def build_decision_pdf(decision) -> ContentFile:
     request = decision.request
     employee = request.employee
     approved = decision.decision == decision.Decision.APPROVED
+    accent = GREEN if approved else RED
+    soft = GREEN_SOFT if approved else RED_SOFT
     reference = f'RES-{request.pk:05d}'
     status_label = decision.get_decision_display()
     decided_at = timezone.localtime(decision.decided_at).strftime('%d/%m/%Y · %H:%M')
 
     _set_doc_info(pdf, f'Resolución de vacaciones {reference}')
-    _header(
-        pdf,
-        reference,
-        'Resolución de solicitud de vacaciones',
-        'Documento de comunicación oficial emitido por la empresa tras la revisión de la solicitud.',
-        GREEN if approved else RED,
-    )
-    accent, soft = _decision_status_box(pdf, status_label, approved)
+    _decision_header(pdf, reference, status_label, accent, soft)
 
-    y = PAGE_H - 114 * mm
-    _section_title(pdf, MARGIN, y, '1', 'Solicitud evaluada', accent)
-    _rounded(pdf, MARGIN, y - 48 * mm, CONTENT_W, 39 * mm, WHITE, LINE, 4 * mm)
-    _decision_field(pdf, MARGIN + 7 * mm, y - 25 * mm, 65 * mm, 'Trabajador', employee.full_name, accent)
-    _decision_field(pdf, MARGIN + 82 * mm, y - 25 * mm, 50 * mm, 'Departamento', employee.department, accent)
-    _decision_field(pdf, MARGIN + 7 * mm, y - 42 * mm, 65 * mm, 'Periodo', f'{request.start_date:%d/%m/%Y} - {request.end_date:%d/%m/%Y}', accent)
-    _decision_field(pdf, MARGIN + 82 * mm, y - 42 * mm, 50 * mm, 'Días solicitados', f'{request.requested_days:g}', accent)
+    y = PAGE_H - 92 * mm
+    _center(pdf, PAGE_W / 2, y + 8 * mm, 'ACTA DE RESOLUCIÓN', 10, GOLD, 'Helvetica-Bold')
+    _text(pdf, 34 * mm, y - 2 * mm, 'Solicitud evaluada', 14, INK, 'Helvetica-Bold')
+    _decision_row(pdf, y - 18 * mm, 'Trabajador', employee.full_name, 34 * mm, 68 * mm)
+    _decision_row(pdf, y - 18 * mm, 'Departamento', employee.department, 112 * mm, 50 * mm)
+    _decision_row(pdf, y - 35 * mm, 'Periodo', f'{request.start_date:%d/%m/%Y} - {request.end_date:%d/%m/%Y}', 34 * mm, 68 * mm)
+    _decision_row(pdf, y - 35 * mm, 'Días solicitados', f'{request.requested_days:g}', 112 * mm, 50 * mm)
 
-    y = PAGE_H - 153 * mm
-    _section_title(pdf, MARGIN, y, '2', 'Resultado de dirección', accent)
-    _rounded(pdf, MARGIN, y - 49 * mm, CONTENT_W, 40 * mm, soft, colors.HexColor('#d8e2ef'), 4 * mm)
+    y -= 62 * mm
+    _soft_box(pdf, 34 * mm, y - 51 * mm, PAGE_W - 68 * mm, 54 * mm, colors.white, colors.HexColor('#e2e8f0'))
+    _text(pdf, 43 * mm, y - 12 * mm, 'Resultado de dirección', 10, accent, 'Helvetica-Bold')
     headline = 'La empresa autoriza el disfrute del periodo solicitado.' if approved else 'La empresa no autoriza el disfrute del periodo solicitado.'
-    _wrapped(pdf, MARGIN + 8 * mm, y - 25 * mm, headline, 108, 2, 11, INK, 5 * mm)
-    _txt(pdf, MARGIN + 8 * mm, y - 40 * mm, 'Observaciones:', 7, accent, 'Helvetica-Bold')
-    _wrapped(pdf, MARGIN + 38 * mm, y - 40 * mm, decision.company_notes or 'Sin observaciones adicionales por parte de dirección.', 78, 1, 7.8, SLATE)
+    _wrapped(pdf, 43 * mm, y - 23 * mm, headline, 92, 2, 13, INK)
+    _text(pdf, 43 * mm, y - 38 * mm, 'Observaciones:', 8, MUTED, 'Helvetica-Bold')
+    _wrapped(pdf, 70 * mm, y - 38 * mm, decision.company_notes or 'Sin observaciones adicionales por parte de dirección.', 71, 2, 8.5, MUTED)
 
-    y = PAGE_H - 209 * mm
-    _section_title(pdf, MARGIN, y, '3', 'Trazabilidad y firmas', accent)
-    _rounded(pdf, MARGIN, y - 31 * mm, CONTENT_W, 22 * mm, WHITE, LINE, 4 * mm)
-    _decision_field(pdf, MARGIN + 7 * mm, y - 24 * mm, 65 * mm, 'Responsable', str(decision.decided_by), accent)
-    _decision_field(pdf, MARGIN + 82 * mm, y - 24 * mm, 60 * mm, 'Fecha de resolución', decided_at, accent)
-    sig_w = 72 * mm
-    _signature(pdf, MARGIN, 24 * mm, sig_w, 'Firma dirección')
-    _signature(pdf, PAGE_W - MARGIN - sig_w, 24 * mm, sig_w, 'Recibí trabajador/a')
+    y -= 78 * mm
+    _text(pdf, 34 * mm, y, 'Trazabilidad y firmas', 14, INK, 'Helvetica-Bold')
+    _decision_row(pdf, y - 18 * mm, 'Responsable', str(decision.decided_by), 34 * mm, 62 * mm)
+    _decision_row(pdf, y - 18 * mm, 'Fecha de resolución', decided_at, 108 * mm, 58 * mm)
+    _signature(pdf, 34 * mm, y - 58 * mm, 'Firma dirección', 'Conforme a la resolución', 58 * mm)
+    _signature(pdf, PAGE_W - 92 * mm, y - 58 * mm, 'Recibí trabajador', 'Comunicación recibida', 58 * mm)
 
     _footer(pdf, reference)
     pdf.showPage()
     pdf.save()
 
-    return ContentFile(buffer.getvalue(), name=f'resolucion_vacaciones_{request.pk}.pdf')
+    filename = f'resolucion_vacaciones_{request.pk}.pdf'
+    return ContentFile(buffer.getvalue(), name=filename)
