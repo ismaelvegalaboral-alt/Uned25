@@ -1,11 +1,14 @@
 from io import BytesIO
+from pathlib import Path
 from textwrap import wrap
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 PAGE_W, PAGE_H = A4
@@ -92,8 +95,20 @@ def _fit_text(pdf: canvas.Canvas, value: str, max_width: float, font: str = 'Hel
     return (text + ellipsis) if text else ellipsis
 
 
+def _runtime_logo_path() -> Path:
+    return Path(settings.MEDIA_ROOT) / 'branding' / 'kalpae-logo.png'
+
+
 def _draw_kalpae_logo(pdf: canvas.Canvas, x: float, y: float, width: float) -> None:
-    """Draw a text/vector approximation of the Kalpae logo without binary assets."""
+    """Draw the exact runtime logo when installed, with a vector fallback for tests."""
+    logo_path = _runtime_logo_path()
+    if logo_path.exists():
+        image = ImageReader(str(logo_path))
+        img_w, img_h = image.getSize()
+        height = width * img_h / img_w
+        pdf.drawImage(image, x, y, width=width, height=height, preserveAspectRatio=True, mask='auto')
+        return
+
     icon = width * 0.18
     height = icon * 0.84
     pdf.saveState()
