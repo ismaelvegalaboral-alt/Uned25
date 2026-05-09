@@ -1,5 +1,19 @@
 {% extends 'vacations/base.html' %}
 {% block content %}
-<header class="hero"><div><p>Ficha de trabajador</p><h1>{{ employee.full_name }}</h1><span>{{ employee.department|default:'Sin departamento' }} · {{ employee.position|default:'Sin puesto' }}</span></div><a class="primary" href="{% url 'request_create' %}">Solicitar vacaciones</a></header>
-<section class="grid two"><article class="card"><h2>Datos</h2><dl><dt>DNI/NIE</dt><dd>{{ employee.national_id|default:'—' }}</dd><dt>Email</dt><dd>{{ employee.email|default:'—' }}</dd><dt>Días anuales</dt><dd>{{ employee.annual_days }}</dd></dl></article><article class="card"><h2>Histórico</h2>{% include 'vacations/partials_request_table.html' with requests=history %}</article></section>
+<header class="hero"><div><p>Ficha de trabajador</p><h1>{{ employee.full_name }}</h1><span>{{ employee.department|default:'Sin departamento' }} · {{ employee.position|default:'Sin puesto' }}</span></div></header>
+<section class="grid two">
+  <article class="card">
+    <h2>Datos laborales</h2>
+    <dl>
+      <dt>Usuario vinculado</dt><dd>{% if employee.user %}{{ employee.user.username }}{% else %}Sin vincular{% endif %}</dd>
+      <dt>DNI/NIE</dt><dd>{{ employee.national_id|default:'—' }}</dd>
+      <dt>Email</dt><dd>{{ employee.email|default:'—' }}</dd>
+      <dt>Días anuales</dt><dd>{{ employee.annual_days }}</dd>
+    </dl>
+  </article>
+  <article class="card">
+    <h2>Histórico</h2>
+    {% include 'vacations/partials_request_table.html' with requests=history %}
+  </article>
+</section>
 {% endblock %}

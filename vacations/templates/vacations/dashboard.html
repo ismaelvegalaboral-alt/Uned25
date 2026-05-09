@@ -1,15 +1,47 @@
 {% extends 'vacations/base.html' %}
-{% block title %}Panel · Vacaciones Pro{% endblock %}
+{% block title %}Panel · Kalpae Gestión de Ausencias{% endblock %}
 {% block content %}
-<header class="hero"><div><p>Gestión de vacaciones</p><h1>Panel de control</h1></div><a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a></header>
-<section class="stats">
-  <article><span>Trabajadores</span><strong>{{ stats.employees }}</strong></article>
-  <article><span>Pendientes</span><strong>{{ stats.pending }}</strong></article>
-  <article><span>Aprobadas</span><strong>{{ stats.approved }}</strong></article>
-  <article><span>Días gestionados</span><strong>{{ stats.days }}</strong></article>
-</section>
-<section class="grid two">
-  <article class="card"><h2>Últimas solicitudes</h2>{% include 'vacations/partials_request_table.html' with requests=requests %}</article>
-  <article class="card"><h2>Departamentos</h2>{% for item in by_department %}<div class="bar"><span>{{ item.department|default:'Sin departamento' }}</span><strong>{{ item.total }}</strong></div>{% empty %}<p>No hay fichas todavía.</p>{% endfor %}</article>
-</section>
+{% if worker_dashboard %}
+  <header class="hero"><div><p>Mi espacio de ausencias</p><h1>Mis solicitudes</h1><span>Consulta el estado de tus solicitudes y descarga tus documentos.</span></div>{% if can_create_request %}<a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a>{% endif %}</header>
+  {% if not linked_employee %}
+    <section class="card warning-card"><h2>Usuario no vinculado</h2><p>Tu cuenta todavía no está vinculada a una ficha de trabajador. RRHH debe vincular tu usuario desde la ficha correspondiente.</p></section>
+  {% endif %}
+  <section class="stats worker-stats">
+    <article><span>Mis solicitudes</span><strong>{{ stats.my_requests }}</strong></article>
+    <article><span>Pendientes</span><strong>{{ stats.pending }}</strong></article>
+    <article><span>Aprobadas</span><strong>{{ stats.approved }}</strong></article>
+    <article><span>Denegadas</span><strong>{{ stats.rejected }}</strong></article>
+  </section>
+  <section class="card"><h2>Últimas solicitudes</h2>{% include 'vacations/partials_request_table.html' with requests=requests %}</section>
+{% else %}
+  <header class="hero"><div><p>Kalpae Gestión de Ausencias</p><h1>Panel de control RRHH</h1><span>Priorización de solicitudes, solapes y documentación lista para firma.</span></div>{% if can_create_request %}<a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a>{% endif %}</header>
+  <section class="stats">
+    <article><span>Trabajadores</span><strong>{{ stats.employees }}</strong></article>
+    <article><span>Pendientes</span><strong>{{ stats.pending }}</strong></article>
+    <article><span>Aprobadas</span><strong>{{ stats.approved }}</strong></article>
+    <article class="{% if stats.attention %}stat-alert{% endif %}"><span>Requieren revisión</span><strong>{{ stats.attention }}</strong></article>
+    <article><span>Días gestionados</span><strong>{{ stats.days }}</strong></article>
+  </section>
+  <section class="grid two">
+    <article class="card"><h2>Últimas solicitudes</h2>{% include 'vacations/partials_request_table.html' with requests=requests %}</article>
+    <article class="card"><h2>Departamentos</h2>{% for item in by_department %}<div class="bar"><span>{{ item.department|default:'Sin departamento' }}</span><strong>{{ item.total }}</strong></div>{% empty %}<p>No hay fichas todavía.</p>{% endfor %}</article>
+  </section>
+  <section class="card hr-review">
+    <div class="row"><div><h2>Radar RRHH</h2><p>Solicitudes pendientes con alertas de preaviso, saldo, duplicidad o solape departamental.</p></div>{% if can_view_calendar %}<a class="primary ghost" href="{% url 'vacation_calendar' %}">Ver calendario</a>{% endif %}</div>
+    {% for item in attention_requests %}
+      <div class="review-item {{ item.review.severity }}">
+        <div>
+          <strong>{{ item.request.employee.full_name }}</strong>
+          <span>{{ item.request.start_date|date:'d/m/Y' }} - {{ item.request.end_date|date:'d/m/Y' }} · {{ item.request.requested_days }} días</span>
+        </div>
+        <div>
+          <span class="review-label {{ item.review.severity }}">{{ item.review.label }}</span>
+          <a href="{% url 'request_detail' item.request.pk %}">Revisar</a>
+        </div>
+      </div>
+    {% empty %}
+      <p class="empty">No hay solicitudes pendientes con alertas. Buen síntoma.</p>
+    {% endfor %}
+  </section>
+{% endif %}
 {% endblock %}

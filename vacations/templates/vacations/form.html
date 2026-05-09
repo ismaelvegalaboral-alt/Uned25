@@ -1,5 +1,19 @@
 {% extends 'vacations/base.html' %}
 {% block content %}
-<header class="page-title"><h1>{{ title }}</h1><p>Completa los campos; los documentos se guardan automáticamente.</p></header>
-<form class="card form-card" method="post">{% csrf_token %}{{ form.as_p }}<button class="primary" type="submit">{{ submit_label }}</button></form>
+<header class="page-title"><div><h1>{{ title }}</h1><p>Completa los datos y conserva una trazabilidad clara para RRHH.</p></div></header>
+
+{% if hr_review %}
+<section class="card hr-review {{ hr_review.severity }}">
+  <div class="row"><div><p>Antes de resolver</p><h2>{{ hr_review.label }}</h2></div><span class="review-label {{ hr_review.severity }}">{{ hr_review.severity|upper }}</span></div>
+  <div class="flags">
+    {% for flag in hr_review.flags %}
+      <article class="flag {{ flag.severity }}"><strong>{{ flag.title }}</strong><p>{{ flag.detail }}</p></article>
+    {% empty %}
+      <article class="flag ok"><strong>Sin alertas automáticas</strong><p>No se detectan incidencias de saldo, preaviso o solape.</p></article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="card form-card"><form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">{{ submit_label }}</button></form></section>
 {% endblock %}

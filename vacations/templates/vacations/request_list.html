@@ -1,6 +1,12 @@
 {% extends 'vacations/base.html' %}
 {% block content %}
-<header class="page-title row"><div><h1>Histórico de solicitudes</h1><p>Registro completo con documentos PDF integrados.</p></div><a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a></header>
+<header class="page-title row">
+  <div>
+    <h1>{% if all_requests_view %}Histórico de solicitudes{% else %}Mis solicitudes{% endif %}</h1>
+    <p>{% if all_requests_view %}Registro completo con documentos PDF integrados.{% else %}Consulta tus solicitudes y resoluciones disponibles.{% endif %}</p>
+  </div>
+  {% if can_create_request %}<a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a>{% endif %}
+</header>
 <form class="search"><select name="status"><option value="">Todos los estados</option>{% for value,label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button>Filtrar</button></form>
 <section class="card">{% include 'vacations/partials_request_table.html' with requests=requests %}</section>
 {% endblock %}

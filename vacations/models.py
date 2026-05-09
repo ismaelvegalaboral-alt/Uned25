@@ -4,6 +4,15 @@ from django.urls import reverse
 
 
 class Employee(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='employee_profile',
+        null=True,
+        blank=True,
+        verbose_name='usuario vinculado',
+        help_text='Opcional. Permite que el trabajador acceda solo a sus propias solicitudes.',
+    )
     first_name = models.CharField('nombre', max_length=120)
     last_name = models.CharField('apellidos', max_length=160)
     national_id = models.CharField('DNI/NIE', max_length=20, blank=True)

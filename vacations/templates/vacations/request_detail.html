@@ -2,7 +2,24 @@
 {% block content %}
 <header class="hero"><div><p>Solicitud #{{ vacation_request.pk }}</p><h1>{{ vacation_request.employee.full_name }}</h1><span>{{ vacation_request.start_date|date:'d/m/Y' }} - {{ vacation_request.end_date|date:'d/m/Y' }}</span></div><span class="pill {{ vacation_request.status }}">{{ vacation_request.get_status_display }}</span></header>
 <section class="grid two">
-  <article class="card"><h2>Solicitud del trabajador</h2><dl><dt>Días</dt><dd>{{ vacation_request.requested_days }}</dd><dt>Creada por</dt><dd>{{ vacation_request.created_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'request_pdf_download' vacation_request.pk %}">Descargar PDF solicitud</a></article>
-  <article class="card"><h2>Decisión de dirección</h2>{% if vacation_request.decision %}<dl><dt>Decisión</dt><dd>{{ vacation_request.decision.get_decision_display }}</dd><dt>Responsable</dt><dd>{{ vacation_request.decision.decided_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.decision.company_notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'decision_pdf_download' vacation_request.pk %}">Descargar PDF decisión</a>{% else %}<p>Pendiente de estudio por dirección.</p><a class="primary" href="{% url 'request_decide' vacation_request.pk %}">Resolver solicitud</a>{% endif %}</article>
+  <article class="card"><h2>Solicitud</h2><dl><dt>Días</dt><dd>{{ vacation_request.requested_days }}</dd><dt>Laborables del periodo</dt><dd>{{ hr_review.business_days }}</dd><dt>Saldo posterior estimado</dt><dd>{{ hr_review.remaining_after_request }} días</dd><dt>Creada por</dt><dd>{{ vacation_request.created_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'request_pdf_download' vacation_request.pk %}">Descargar PDF solicitud</a></article>
+  <article class="card"><h2>Resolución</h2>{% if vacation_request.decision %}<dl><dt>Decisión</dt><dd>{{ vacation_request.decision.get_decision_display }}</dd><dt>Responsable</dt><dd>{{ vacation_request.decision.decided_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.decision.company_notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'decision_pdf_download' vacation_request.pk %}">Descargar PDF resolución</a>{% else %}<p>Pendiente de estudio por dirección.</p>{% if can_resolve_this_request %}<a class="primary" href="{% url 'request_decide' vacation_request.pk %}">Resolver solicitud</a>{% endif %}{% endif %}</article>
 </section>
+{% if can_view_all_requests %}
+<section class="card hr-review {{ hr_review.severity }}">
+  <div class="row"><div><p>Control preventivo</p><h2>Revisión RRHH: {{ hr_review.label }}</h2></div><span class="review-label {{ hr_review.severity }}">{{ hr_review.severity|upper }}</span></div>
+  <dl>
+    <dt>Preaviso</dt><dd>{{ hr_review.notice_days }} día(s)</dd>
+    <dt>Solapes departamento</dt><dd>{{ hr_review.overlap_count }} activo(s), {{ hr_review.approved_overlap_count }} aprobado(s)</dd>
+    <dt>Días ya comprometidos</dt><dd>{{ hr_review.already_committed_days }} día(s)</dd>
+  </dl>
+  <div class="flags">
+    {% for flag in hr_review.flags %}
+      <article class="flag {{ flag.severity }}"><strong>{{ flag.title }}</strong><p>{{ flag.detail }}</p></article>
+    {% empty %}
+      <article class="flag ok"><strong>Sin alertas críticas</strong><p>La solicitud no presenta incidencias automáticas. Aun así, revisa calendario y necesidades del servicio antes de resolver.</p></article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 {% endblock %}
