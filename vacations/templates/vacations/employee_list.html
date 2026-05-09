@@ -1,0 +1,6 @@
+{% extends 'vacations/base.html' %}
+{% block content %}
+<header class="page-title row"><div><h1>Fichas de trabajadores</h1><p>Datos laborales e histórico asociado.</p></div><a class="primary" href="{% url 'employee_create' %}">+ Nueva ficha</a></header>
+<form class="search"><input name="q" value="{{ q }}" placeholder="Buscar por nombre o departamento"><button>Buscar</button></form>
+<section class="cards-list">{% for employee in employees %}<a class="person-card" href="{{ employee.get_absolute_url }}"><strong>{{ employee.full_name }}</strong><span>{{ employee.department|default:'Sin departamento' }} · {{ employee.position|default:'Sin puesto' }}</span><em>{{ employee.annual_days }} días/año</em></a>{% empty %}<p>No hay trabajadores.</p>{% endfor %}</section>
+{% endblock %}
