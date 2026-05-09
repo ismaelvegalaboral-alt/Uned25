@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from .forms import EmployeeForm, VacationDecisionForm, VacationRequestForm
 from .models import Employee, VacationDecision, VacationRequest
+from .notifications import send_new_request_notification
 from .pdf import build_decision_pdf, build_request_pdf
 from .permissions import (
     can_access_employee,
@@ -253,6 +254,8 @@ def request_create(request):
         pdf_file = build_request_pdf(vacation_request)
         vacation_request.request_pdf.save(pdf_file.name, pdf_file, save=True)
 
+        notification_sent = send_new_request_notification(vacation_request)
+
         if review.has_blocking_flags:
             messages.error(
                 request,
@@ -265,6 +268,15 @@ def request_create(request):
             )
         else:
             messages.success(request, 'Solicitud registrada y PDF generado para firma.')
+
+        if notification_sent:
+            messages.info(request, 'Administración ha recibido un aviso automático por email.')
+        else:
+            messages.warning(
+                request,
+                'La solicitud se guardó correctamente, pero no se pudo enviar el aviso automático por email.',
+            )
+
         return redirect(vacation_request)
     return render(
         request,
