@@ -13,7 +13,7 @@ Plataforma Django para cuadrar vacaciones de empresa con login, panel moderno, f
 - Histórico filtrable por estado.
 - Resolución por dirección con PDF llamativo de decisión aprobada o denegada.
 - Admin de Django para gestión avanzada.
-- Documentos guardados en `media/vacation_documents/`; la carpeta queda versionada para poder subir a GitHub PDFs/documentos que quieras conservar en el repositorio. Los botones de descarga regeneran el PDF con la plantilla profesional vigente, ya con logo corporativo Kalpae Ibérica y un diseño ajustado para que los bloques no se pisen.
+- Documentos guardados en `media/vacation_documents/`; la carpeta queda versionada para poder subir a GitHub PDFs/documentos que quieras conservar en el repositorio. Los botones de descarga regeneran el PDF con la plantilla profesional vigente, ya con logo corporativo Kalpae Ibérica como SVG/vector sin binarios y una plantilla de solicitud totalmente rediseñada para que los bloques no se pisen.
 
 ## Puesta en marcha
 

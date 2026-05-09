@@ -116,4 +116,3 @@ class VacationCalendarTests(TestCase):
         self.assertContains(response, 'Agosto 2026')
         self.assertContains(response, 'Solape')
         self.assertEqual(response.context['overlap_days'], 3)
-
