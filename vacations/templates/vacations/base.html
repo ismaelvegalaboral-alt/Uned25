@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Vacaciones Pro{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'vacations/css/app.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span>V</span><strong>Vacaciones Pro</strong></div>
+    <nav>
+      <a href="{% url 'dashboard' %}">Panel</a>
+      <a href="{% url 'employee_list' %}">Fichas</a>
+      <a href="{% url 'request_list' %}">Histórico</a>
+      <a href="{% url 'vacation_calendar' %}">Calendario</a>
+      <a href="{% url 'request_create' %}">Nueva solicitud</a>
+      <a href="{% url 'admin:index' %}">Admin</a>
+    </nav>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Salir</button></form>
+  </aside>
+  <main class="content">
+    {% if messages %}<section class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</section>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
