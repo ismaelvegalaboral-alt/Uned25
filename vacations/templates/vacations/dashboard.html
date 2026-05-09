@@ -1,0 +1,15 @@
+{% extends 'vacations/base.html' %}
+{% block title %}Panel · Vacaciones Pro{% endblock %}
+{% block content %}
+<header class="hero"><div><p>Gestión de vacaciones</p><h1>Panel de control</h1></div><a class="primary" href="{% url 'request_create' %}">+ Nueva solicitud</a></header>
+<section class="stats">
+  <article><span>Trabajadores</span><strong>{{ stats.employees }}</strong></article>
+  <article><span>Pendientes</span><strong>{{ stats.pending }}</strong></article>
+  <article><span>Aprobadas</span><strong>{{ stats.approved }}</strong></article>
+  <article><span>Días gestionados</span><strong>{{ stats.days }}</strong></article>
+</section>
+<section class="grid two">
+  <article class="card"><h2>Últimas solicitudes</h2>{% include 'vacations/partials_request_table.html' with requests=requests %}</article>
+  <article class="card"><h2>Departamentos</h2>{% for item in by_department %}<div class="bar"><span>{{ item.department|default:'Sin departamento' }}</span><strong>{{ item.total }}</strong></div>{% empty %}<p>No hay fichas todavía.</p>{% endfor %}</article>
+</section>
+{% endblock %}

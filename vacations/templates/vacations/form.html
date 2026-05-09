@@ -1,0 +1,5 @@
+{% extends 'vacations/base.html' %}
+{% block content %}
+<header class="page-title"><h1>{{ title }}</h1><p>Completa los campos; los documentos se guardan automáticamente.</p></header>
+<form class="card form-card" method="post">{% csrf_token %}{{ form.as_p }}<button class="primary" type="submit">{{ submit_label }}</button></form>
+{% endblock %}
