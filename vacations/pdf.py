@@ -292,3 +292,4 @@ def build_decision_pdf(decision) -> ContentFile:
     pdf.save()
 
     return ContentFile(buffer.getvalue(), name=f'resolucion_vacaciones_{request.pk}.pdf')
+
