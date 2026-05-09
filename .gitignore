@@ -2,4 +2,3 @@ __pycache__/
 *.py[cod]
 .venv/
 db.sqlite3
-media/vacation_documents/*.pdf

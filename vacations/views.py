@@ -4,12 +4,20 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q, Sum
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import EmployeeForm, VacationDecisionForm, VacationRequestForm
 from .models import Employee, VacationDecision, VacationRequest
 from .pdf import build_decision_pdf, build_request_pdf
+
+
+def _pdf_response(pdf_file, filename):
+    response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response['Cache-Control'] = 'no-store'
+    return response
 
 MONTH_NAMES = [
     '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -175,6 +183,32 @@ def request_detail(request, pk):
         pk=pk,
     )
     return render(request, 'vacations/request_detail.html', {'vacation_request': vacation_request})
+
+
+@login_required
+def request_pdf_download(request, pk):
+    vacation_request = get_object_or_404(
+        VacationRequest.objects.select_related('employee', 'created_by'),
+        pk=pk,
+    )
+    pdf_file = build_request_pdf(vacation_request)
+    vacation_request.request_pdf.save(pdf_file.name, pdf_file, save=True)
+    pdf_file.seek(0)
+    return _pdf_response(pdf_file, pdf_file.name)
+
+
+@login_required
+def decision_pdf_download(request, pk):
+    vacation_request = get_object_or_404(
+        VacationRequest.objects.select_related('employee', 'decision__decided_by'),
+        pk=pk,
+    )
+    if not hasattr(vacation_request, 'decision'):
+        raise Http404('La solicitud todavía no tiene resolución.')
+    pdf_file = build_decision_pdf(vacation_request.decision)
+    vacation_request.decision.decision_pdf.save(pdf_file.name, pdf_file, save=True)
+    pdf_file.seek(0)
+    return _pdf_response(pdf_file, pdf_file.name)
 
 
 @login_required
