@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from .audit import log_action
 from .forms import EmployeeForm, VacationDecisionForm, VacationRequestForm
 from .models import Employee, VacationDecision, VacationRequest
 from .notifications import send_new_request_notification
@@ -254,6 +255,7 @@ def request_create(request):
         review = evaluate_request(vacation_request)
         pdf_file = build_request_pdf(vacation_request)
         vacation_request.request_pdf.save(pdf_file.name, pdf_file, save=True)
+        log_action(request.user, 'request_created', vacation_request, request=request, metadata={'absence_type': vacation_request.absence_type})
 
         notification_sent = send_new_request_notification(vacation_request)
         push_sent = notify_new_request(vacation_request)
@@ -366,6 +368,7 @@ def request_decide(request, pk):
         vacation_request.save(update_fields=['status', 'updated_at'])
         pdf_file = build_decision_pdf(decision)
         decision.decision_pdf.save(pdf_file.name, pdf_file, save=True)
+        log_action(request.user, 'request_decided', decision, request=request, metadata={'request_id': vacation_request.pk, 'decision': decision.decision, 'status': vacation_request.status})
 
         notify_request_decision(vacation_request)
 

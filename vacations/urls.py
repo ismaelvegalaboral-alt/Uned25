@@ -1,9 +1,11 @@
 from django.urls import path
 
 from . import views
+from . import file_views
 from . import push_views
 
 urlpatterns = [
+    path('solicitudes/<int:pk>/justificante/', file_views.supporting_document_download, name='supporting_document_download'),
     path('notificaciones/', push_views.notification_settings, name='notification_settings'),
     path('push/public-key/', push_views.public_key, name='push_public_key'),
     path('push/subscribe/', push_views.subscribe, name='push_subscribe'),

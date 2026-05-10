@@ -153,3 +153,30 @@ if not hasattr(VacationRequest, "has_supporting_document"):
     VacationRequest.has_supporting_document = property(
         lambda self: bool(self.supporting_document)
     )
+
+class AuditLog(models.Model):
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_logs',
+        verbose_name='usuario',
+    )
+    action = models.CharField('acción', max_length=80)
+    model_name = models.CharField('modelo', max_length=120, blank=True)
+    object_id = models.CharField('ID objeto', max_length=120, blank=True)
+    object_repr = models.CharField('objeto', max_length=255, blank=True)
+    metadata = models.JSONField('metadatos', default=dict, blank=True)
+    ip_address = models.GenericIPAddressField('IP', null=True, blank=True)
+    user_agent = models.TextField('user agent', blank=True)
+    created_at = models.DateTimeField('fecha', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'registro de auditoría'
+        verbose_name_plural = 'registros de auditoría'
+
+    def __str__(self):
+        actor = self.actor or 'sistema'
+        return f'{self.created_at:%Y-%m-%d %H:%M} · {actor} · {self.action}'

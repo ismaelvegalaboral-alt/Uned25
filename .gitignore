@@ -6,3 +6,6 @@ media/branding/*
 !media/branding/.gitkeep
 .env
 vapid_private.pem
+logs/
+backups/
+*.tar.gz

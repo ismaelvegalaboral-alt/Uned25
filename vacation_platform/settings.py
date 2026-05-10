@@ -130,3 +130,69 @@ WEBPUSH_ENABLED = env_bool('WEBPUSH_ENABLED', False)
 WEBPUSH_VAPID_PUBLIC_KEY = os.getenv('WEBPUSH_VAPID_PUBLIC_KEY', '')
 WEBPUSH_VAPID_PRIVATE_KEY = os.getenv('WEBPUSH_VAPID_PRIVATE_KEY', '')
 WEBPUSH_VAPID_SUB = os.getenv('WEBPUSH_VAPID_SUB', 'mailto:admin@example.com')
+
+# --- Kalpae production security hardening ---
+import os
+
+def _kalpae_env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+def _kalpae_env_int(name, default=0):
+    value = os.getenv(name)
+    if value is None or value == '':
+        return default
+    return int(value)
+
+def _kalpae_env_list(name, default=''):
+    value = os.getenv(name, default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+DEBUG = _kalpae_env_bool('DEBUG', False)
+ALLOWED_HOSTS = _kalpae_env_list('ALLOWED_HOSTS', 'ausencias.kalpae.es,82.223.104.142')
+CSRF_TRUSTED_ORIGINS = _kalpae_env_list('CSRF_TRUSTED_ORIGINS', 'https://ausencias.kalpae.es')
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = _kalpae_env_bool('SECURE_SSL_REDIRECT', True)
+SESSION_COOKIE_SECURE = _kalpae_env_bool('SESSION_COOKIE_SECURE', True)
+CSRF_COOKIE_SECURE = _kalpae_env_bool('CSRF_COOKIE_SECURE', True)
+SECURE_HSTS_SECONDS = _kalpae_env_int('SECURE_HSTS_SECONDS', 86400)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _kalpae_env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
+SECURE_HSTS_PRELOAD = _kalpae_env_bool('SECURE_HSTS_PRELOAD', False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'same-origin'
+
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {name}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR / 'django.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': 'INFO',
+    },
+}

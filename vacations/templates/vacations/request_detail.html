@@ -16,7 +16,7 @@
     <article class="person-card">
       <strong>Justificante</strong>
       {% if vacation_request.supporting_document %}
-        <a href="{{ vacation_request.supporting_document.url }}" target="_blank">Ver documento adjunto</a>
+        <a href="{% url 'supporting_document_download' vacation_request.pk %}" target="_blank">Ver documento adjunto</a>
       {% else %}
         <span>No se adjuntó justificante.</span>
       {% endif %}
