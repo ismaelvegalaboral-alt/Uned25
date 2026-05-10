@@ -5,3 +5,4 @@ db.sqlite3
 media/branding/*
 !media/branding/.gitkeep
 .env
+vapid_private.pem

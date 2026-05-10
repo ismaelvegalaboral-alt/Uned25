@@ -1,8 +1,13 @@
 from django.urls import path
 
 from . import views
+from . import push_views
 
 urlpatterns = [
+    path('notificaciones/', push_views.notification_settings, name='notification_settings'),
+    path('push/public-key/', push_views.public_key, name='push_public_key'),
+    path('push/subscribe/', push_views.subscribe, name='push_subscribe'),
+    path('push/test/', push_views.test_notification, name='push_test'),
     path('', views.dashboard, name='dashboard'),
     path('trabajadores/', views.employee_list, name='employee_list'),
     path('trabajadores/nuevo/', views.employee_create, name='employee_create'),

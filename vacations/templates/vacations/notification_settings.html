@@ -1,0 +1,123 @@
+{% extends "vacations/base.html" %}
+
+{% block title %}Notificaciones · Kalpae Gestión de Ausencias{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p>App instalable / PWA</p>
+    <h1>Notificaciones</h1>
+    <span>Activa los avisos push para recibir alertas de solicitudes y resoluciones.</span>
+  </div>
+</section>
+
+<section class="card">
+  {% if not push_configured %}
+    <div class="message warning">
+      Las notificaciones push todavía no están configuradas en el servidor. Falta generar las claves VAPID y añadirlas al archivo .env.
+    </div>
+  {% endif %}
+
+  <div class="grid two">
+    <article class="person-card">
+      <strong>1. Activar en este dispositivo</strong>
+      <span>Permite que este navegador reciba notificaciones de la plataforma.</span>
+      <button id="enablePush" class="primary" type="button">Activar notificaciones</button>
+    </article>
+
+    <article class="person-card">
+      <strong>2. Enviar prueba</strong>
+      <span>Comprueba cómo llegará una notificación real.</span>
+      <button id="testPush" class="primary ghost" type="button">Enviar notificación de prueba</button>
+    </article>
+  </div>
+
+  <div id="pushStatus" class="message" style="margin-top:18px; display:none;"></div>
+</section>
+
+<script>
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+function showStatus(text, type='') {
+  const box = document.getElementById('pushStatus');
+  box.textContent = text;
+  box.className = `message ${type}`;
+  box.style.display = 'block';
+}
+
+async function enablePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    showStatus('Este navegador no soporta notificaciones push web.', 'error');
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') {
+    showStatus('Permiso de notificaciones no concedido.', 'warning');
+    return;
+  }
+
+  const keyResponse = await fetch('{% url "push_public_key" %}');
+  const keyData = await keyResponse.json();
+  if (!keyData.enabled || !keyData.publicKey) {
+    showStatus('El servidor todavía no tiene las claves push configuradas.', 'error');
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
+
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+    });
+  }
+
+  const response = await fetch('{% url "push_subscribe" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify(subscription)
+  });
+
+  const data = await response.json();
+  if (data.ok) {
+    showStatus('Notificaciones activadas correctamente en este dispositivo.', 'success');
+  } else {
+    showStatus(data.error || 'No se pudo activar la suscripción.', 'error');
+  }
+}
+
+async function testPush() {
+  const response = await fetch('{% url "push_test" %}', {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')}
+  });
+  const data = await response.json();
+  if (data.ok) {
+    showStatus('Notificación de prueba enviada.', 'success');
+  } else {
+    showStatus('No se pudo enviar. Activa primero las notificaciones en este dispositivo.', 'warning');
+  }
+}
+
+document.getElementById('enablePush').addEventListener('click', enablePush);
+document.getElementById('testPush').addEventListener('click', testPush);
+</script>
+{% endblock %}

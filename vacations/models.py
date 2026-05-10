@@ -88,3 +88,25 @@ class VacationDecision(models.Model):
 
     def __str__(self) -> str:
         return f'{self.get_decision_display()} · {self.request}'
+
+class PushSubscription(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='push_subscriptions',
+    )
+    endpoint = models.URLField(max_length=1000, unique=True)
+    p256dh = models.TextField()
+    auth = models.TextField()
+    user_agent = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'suscripción push'
+        verbose_name_plural = 'suscripciones push'
+
+    def __str__(self):
+        return f'{self.user} · {self.endpoint[:60]}'

@@ -67,6 +67,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = []
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -112,3 +113,20 @@ DEFAULT_FROM_EMAIL = os.getenv(
 )
 HR_NOTIFICATION_EMAIL = os.getenv('HR_NOTIFICATION_EMAIL', '')
 SITE_URL = os.getenv('SITE_URL', 'https://ausencias.kalpae.es').rstrip('/')
+
+# Configuración Web Push / PWA notifications
+try:
+    env_bool
+except NameError:
+    import os
+
+    def env_bool(name, default=False):
+        value = os.getenv(name)
+        if value is None:
+            return default
+        return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+WEBPUSH_ENABLED = env_bool('WEBPUSH_ENABLED', False)
+WEBPUSH_VAPID_PUBLIC_KEY = os.getenv('WEBPUSH_VAPID_PUBLIC_KEY', '')
+WEBPUSH_VAPID_PRIVATE_KEY = os.getenv('WEBPUSH_VAPID_PRIVATE_KEY', '')
+WEBPUSH_VAPID_SUB = os.getenv('WEBPUSH_VAPID_SUB', 'mailto:admin@example.com')

@@ -13,6 +13,7 @@ from .forms import EmployeeForm, VacationDecisionForm, VacationRequestForm
 from .models import Employee, VacationDecision, VacationRequest
 from .notifications import send_new_request_notification
 from .pdf import build_decision_pdf, build_request_pdf
+from .push import notify_new_request, notify_request_decision
 from .permissions import (
     can_access_employee,
     can_access_request,
@@ -255,6 +256,7 @@ def request_create(request):
         vacation_request.request_pdf.save(pdf_file.name, pdf_file, save=True)
 
         notification_sent = send_new_request_notification(vacation_request)
+        notify_new_request(vacation_request)
 
         if review.has_blocking_flags:
             messages.error(
@@ -362,6 +364,8 @@ def request_decide(request, pk):
         vacation_request.save(update_fields=['status', 'updated_at'])
         pdf_file = build_decision_pdf(decision)
         decision.decision_pdf.save(pdf_file.name, pdf_file, save=True)
+
+        notify_request_decision(vacation_request)
 
         if decision.decision == VacationDecision.Decision.APPROVED and review.has_blocking_flags:
             messages.warning(

@@ -86,6 +86,7 @@
     <div class="role-badge">{{ role_label }}</div>
     <nav>
       <a href="{% url 'dashboard' %}">Panel</a>
+      <a href="{% url 'notification_settings' %}">Notificaciones</a>
       {% if can_manage_employees %}<a href="{% url 'employee_list' %}">Fichas</a>{% endif %}
       <a href="{% url 'request_list' %}">Solicitudes</a>
       {% if can_view_calendar %}<a href="{% url 'vacation_calendar' %}">Calendario</a>{% endif %}
