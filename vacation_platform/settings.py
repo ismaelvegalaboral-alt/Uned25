@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,8 +21,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'vacations.rate_limit.LoginRateLimitMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'vacations.rate_limit.LoginRateLimitMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -78,7 +78,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Variables .env y configuración email
+# Variables .env y configuraciÃ³n email
 import os
 
 try:
@@ -110,12 +110,12 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv(
     'DEFAULT_FROM_EMAIL',
-    EMAIL_HOST_USER or 'Kalpae Gestión de Ausencias <no-reply@localhost>',
+    EMAIL_HOST_USER or 'Kalpae GestiÃ³n de Ausencias <no-reply@localhost>',
 )
 HR_NOTIFICATION_EMAIL = os.getenv('HR_NOTIFICATION_EMAIL', '')
 SITE_URL = os.getenv('SITE_URL', 'https://ausencias.kalpae.es').rstrip('/')
 
-# Configuración Web Push / PWA notifications
+# ConfiguraciÃ³n Web Push / PWA notifications
 try:
     env_bool
 except NameError:
@@ -198,9 +198,10 @@ LOGGING = {
     },
 }
 
-# SECRET_KEY de producción desde .env
+# SECRET_KEY de producciÃ³n desde .env
 SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
 
 # Login rate limiting
 LOGIN_RATE_LIMIT_ATTEMPTS = int(os.getenv('LOGIN_RATE_LIMIT_ATTEMPTS', '5'))
 LOGIN_RATE_LIMIT_WINDOW_MINUTES = int(os.getenv('LOGIN_RATE_LIMIT_WINDOW_MINUTES', '10'))
+
