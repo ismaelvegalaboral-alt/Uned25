@@ -196,3 +196,6 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# SECRET_KEY de producción desde .env
+SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
