@@ -244,7 +244,7 @@ def request_create(request):
         )
         return redirect('dashboard')
 
-    form = VacationRequestForm(request.POST or None, user=request.user)
+    form = VacationRequestForm(request.POST or None, request.FILES or None, user=request.user)
     if form.is_valid():
         vacation_request = form.save(commit=False)
         vacation_request.created_by = request.user

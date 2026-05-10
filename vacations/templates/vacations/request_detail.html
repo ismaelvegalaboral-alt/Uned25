@@ -5,6 +5,25 @@
   <article class="card"><h2>Solicitud</h2><dl><dt>Días</dt><dd>{{ vacation_request.requested_days }}</dd><dt>Laborables del periodo</dt><dd>{{ hr_review.business_days }}</dd><dt>Saldo posterior estimado</dt><dd>{{ hr_review.remaining_after_request }} días</dd><dt>Creada por</dt><dd>{{ vacation_request.created_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'request_pdf_download' vacation_request.pk %}">Descargar PDF solicitud</a></article>
   <article class="card"><h2>Resolución</h2>{% if vacation_request.decision %}<dl><dt>Decisión</dt><dd>{{ vacation_request.decision.get_decision_display }}</dd><dt>Responsable</dt><dd>{{ vacation_request.decision.decided_by }}</dd><dt>Observaciones</dt><dd>{{ vacation_request.decision.company_notes|default:'Sin observaciones' }}</dd></dl><a class="primary ghost" href="{% url 'decision_pdf_download' vacation_request.pk %}">Descargar PDF resolución</a>{% else %}<p>Pendiente de estudio por dirección.</p>{% if can_resolve_this_request %}<a class="primary" href="{% url 'request_decide' vacation_request.pk %}">Resolver solicitud</a>{% endif %}{% endif %}</article>
 </section>
+
+<section class="card">
+  <h2>Tipo de ausencia</h2>
+  <div class="grid two">
+    <article class="person-card">
+      <strong>{{ vacation_request.absence_type_label }}</strong>
+      <span>Clasificación de la solicitud registrada.</span>
+    </article>
+    <article class="person-card">
+      <strong>Justificante</strong>
+      {% if vacation_request.supporting_document %}
+        <a href="{{ vacation_request.supporting_document.url }}" target="_blank">Ver documento adjunto</a>
+      {% else %}
+        <span>No se adjuntó justificante.</span>
+      {% endif %}
+    </article>
+  </div>
+</section>
+
 {% if can_view_all_requests %}
 <section class="card hr-review {{ hr_review.severity }}">
   <div class="row"><div><p>Control preventivo</p><h2>Revisión RRHH: {{ hr_review.label }}</h2></div><span class="review-label {{ hr_review.severity }}">{{ hr_review.severity|upper }}</span></div>

@@ -15,5 +15,5 @@
 </section>
 {% endif %}
 
-<section class="card form-card"><form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">{{ submit_label }}</button></form></section>
+<section class="card form-card"><form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="primary">{{ submit_label }}</button></form></section>
 {% endblock %}

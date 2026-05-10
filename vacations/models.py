@@ -34,11 +34,31 @@ class Employee(models.Model):
     def full_name(self) -> str:
         return f'{self.first_name} {self.last_name}'.strip()
 
+
+    @property
+    def absence_type_label(self):
+        return self.get_absence_type_display()
+
+    @property
+    def has_supporting_document(self):
+        return bool(self.supporting_document)
+
     def get_absolute_url(self):
         return reverse('employee_detail', args=[self.pk])
 
 
 class VacationRequest(models.Model):
+    class AbsenceType(models.TextChoices):
+        VACATION = 'vacaciones', 'Vacaciones'
+        MEDICAL_APPOINTMENT = 'cita_medica', 'Cita médica'
+        SICK_LEAVE = 'baja_medica', 'Baja médica'
+        JUSTIFIED_ABSENCE = 'ausencia_justificada', 'Ausencia justificada'
+        PERSONAL_DAYS = 'asuntos_propios', 'Asuntos propios'
+        PAID_LEAVE = 'permiso_retribuido', 'Permiso retribuido'
+        TELEWORK = 'teletrabajo_puntual', 'Teletrabajo puntual'
+        TRAINING = 'formacion', 'Formación'
+        OTHER = 'otros', 'Otros'
+
     class Status(models.TextChoices):
         DRAFT = 'draft', 'Borrador'
         PENDING = 'pending', 'Pendiente de dirección'
@@ -47,6 +67,18 @@ class VacationRequest(models.Model):
         CANCELLED = 'cancelled', 'Cancelada'
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='requests', verbose_name='trabajador')
+    absence_type = models.CharField(
+        'tipo de ausencia',
+        max_length=40,
+        choices=AbsenceType.choices,
+        default=AbsenceType.VACATION,
+    )
+    supporting_document = models.FileField(
+        'justificante',
+        upload_to='absence_documents/',
+        blank=True,
+        null=True,
+    )
     start_date = models.DateField('fecha de inicio')
     end_date = models.DateField('fecha de fin')
     requested_days = models.DecimalField('días solicitados', max_digits=5, decimal_places=1)

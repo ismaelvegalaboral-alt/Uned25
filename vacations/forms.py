@@ -16,6 +16,11 @@ class EmployeeForm(forms.ModelForm):
 class VacationRequestForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if 'absence_type' in self.fields:
+            self.fields['absence_type'].label = 'Tipo de ausencia'
+        if 'supporting_document' in self.fields:
+            self.fields['supporting_document'].label = 'Justificante opcional'
+            self.fields['supporting_document'].help_text = 'Puedes adjuntar justificante si aplica.'
         self.user = user
         if user and not can_create_requests_for_others(user):
             employee = get_employee_for_user(user)
@@ -29,7 +34,7 @@ class VacationRequestForm(forms.ModelForm):
 
     class Meta:
         model = VacationRequest
-        fields = ['employee', 'start_date', 'end_date', 'requested_days', 'notes']
+        fields = ['employee', 'absence_type', 'start_date', 'end_date', 'requested_days', 'supporting_document', 'notes']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),

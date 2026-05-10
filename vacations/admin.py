@@ -5,7 +5,7 @@ from .models import Employee, VacationDecision, VacationRequest
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'user', 'department', 'position', 'annual_days', 'email')
+    list_display = ('full_name', 'user', 'department', 'position', 'annual_days', 'email', 'absence_type')
     search_fields = ('first_name', 'last_name', 'national_id', 'department', 'email', 'user__username')
     list_filter = ('department',)
     autocomplete_fields = ('user',)

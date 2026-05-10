@@ -29,6 +29,7 @@ def send_new_request_notification(vacation_request) -> bool:
     plain_message = (
         'Se ha registrado una nueva solicitud en Kalpae Gestión de Ausencias.\n\n'
         f'Trabajador: {employee.full_name}\n'
+        f'Tipo de ausencia: {vacation_request.absence_type_label}\n'
         f'Departamento: {employee.department or "—"}\n'
         f'Puesto: {employee.position or "—"}\n'
         f'Periodo: {_format_date(vacation_request.start_date)} - {_format_date(vacation_request.end_date)}\n'
@@ -47,7 +48,7 @@ def send_new_request_notification(vacation_request) -> bool:
       <div style="padding:24px 28px;color:#0f172a">
         <p>Se ha registrado una nueva solicitud y queda pendiente de revisión.</p>
         <table style="width:100%;border-collapse:collapse;margin:18px 0">
-          <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Trabajador</td><td style="padding:10px;border-bottom:1px solid #e2e8f0"><strong>{employee.full_name}</strong></td></tr>
+          <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Trabajador</td><td style="padding:10px;border-bottom:1px solid #e2e8f0"><strong>{employee.full_name}</strong></td></tr>\n          <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Tipo</td><td style="padding:10px;border-bottom:1px solid #e2e8f0">{vacation_request.absence_type_label}</td></tr>
           <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Departamento</td><td style="padding:10px;border-bottom:1px solid #e2e8f0">{employee.department or "—"}</td></tr>
           <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Periodo</td><td style="padding:10px;border-bottom:1px solid #e2e8f0">{_format_date(vacation_request.start_date)} - {_format_date(vacation_request.end_date)}</td></tr>
           <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#64748b">Días</td><td style="padding:10px;border-bottom:1px solid #e2e8f0">{vacation_request.requested_days:g}</td></tr>

@@ -103,7 +103,7 @@ def notify_new_request(vacation_request) -> int:
     return notify_users(
         users,
         title='Nueva solicitud de ausencia',
-        body=f'{vacation_request.employee.full_name} ha enviado una solicitud pendiente.',
+        body=f'{vacation_request.employee.full_name} ha enviado una solicitud de {vacation_request.absence_type_label.lower()}.',
         url=url,
     )
 
