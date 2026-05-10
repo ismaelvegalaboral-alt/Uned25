@@ -6,24 +6,24 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f172a",
+  "background_color": "#ffffff",
   "theme_color": "#1d2a57",
   "lang": "es",
   "icons": [
     {
-      "src": "/static/vacations/pwa/icon-192.png",
+      "src": "/static/vacations/pwa/kalpae-white-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/static/vacations/pwa/icon-512.png",
+      "src": "/static/vacations/pwa/kalpae-white-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/static/vacations/pwa/icon-maskable-512.png",
+      "src": "/static/vacations/pwa/kalpae-white-icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
