@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AuditLog, Employee, VacationDecision, VacationRequest
+from .models import AuditLog, Employee, LoginAttempt, VacationDecision, VacationRequest
 
 try:
     from .models import PushSubscription
@@ -34,6 +34,17 @@ class AuditLogAdmin(admin.ModelAdmin):
     list_filter = ('action', 'model_name', 'created_at')
     search_fields = ('actor__username', 'action', 'model_name', 'object_repr', 'ip_address')
     readonly_fields = ('actor', 'action', 'model_name', 'object_id', 'object_repr', 'metadata', 'ip_address', 'user_agent', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(LoginAttempt)
+class LoginAttemptAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'ip_address', 'username', 'success', 'blocked', 'path')
+    list_filter = ('success', 'blocked', 'created_at')
+    search_fields = ('ip_address', 'username', 'user_agent')
+    readonly_fields = ('ip_address', 'username', 'path', 'success', 'blocked', 'user_agent', 'created_at')
 
     def has_add_permission(self, request):
         return False

@@ -180,3 +180,28 @@ class AuditLog(models.Model):
     def __str__(self):
         actor = self.actor or 'sistema'
         return f'{self.created_at:%Y-%m-%d %H:%M} · {actor} · {self.action}'
+
+class LoginAttempt(models.Model):
+    ip_address = models.GenericIPAddressField('IP', null=True, blank=True)
+    username = models.CharField('usuario/email', max_length=255, blank=True)
+    path = models.CharField('ruta', max_length=255, blank=True)
+    success = models.BooleanField('correcto', default=False)
+    blocked = models.BooleanField('bloqueado', default=False)
+    user_agent = models.TextField('user agent', blank=True)
+    created_at = models.DateTimeField('fecha', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'intento de login'
+        verbose_name_plural = 'intentos de login'
+        indexes = [
+            models.Index(fields=['ip_address', 'created_at']),
+            models.Index(fields=['username', 'created_at']),
+            models.Index(fields=['success', 'created_at']),
+        ]
+
+    def __str__(self):
+        result = 'OK' if self.success else 'KO'
+        if self.blocked:
+            result = 'BLOQUEADO'
+        return f'{self.created_at:%Y-%m-%d %H:%M} · {self.ip_address} · {self.username} · {result}'

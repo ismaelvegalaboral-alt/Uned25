@@ -21,6 +21,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'vacations.rate_limit.LoginRateLimitMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -199,3 +200,7 @@ LOGGING = {
 
 # SECRET_KEY de producción desde .env
 SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
+
+# Login rate limiting
+LOGIN_RATE_LIMIT_ATTEMPTS = int(os.getenv('LOGIN_RATE_LIMIT_ATTEMPTS', '5'))
+LOGIN_RATE_LIMIT_WINDOW_MINUTES = int(os.getenv('LOGIN_RATE_LIMIT_WINDOW_MINUTES', '10'))
