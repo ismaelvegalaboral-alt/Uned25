@@ -142,3 +142,14 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f'{self.user} · {self.endpoint[:60]}'
+
+# Compatibilidad: etiqueta legible del tipo de ausencia
+if not hasattr(VacationRequest, "absence_type_label"):
+    VacationRequest.absence_type_label = property(
+        lambda self: self.get_absence_type_display()
+    )
+
+if not hasattr(VacationRequest, "has_supporting_document"):
+    VacationRequest.has_supporting_document = property(
+        lambda self: bool(self.supporting_document)
+    )
