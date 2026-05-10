@@ -256,7 +256,7 @@ def request_create(request):
         vacation_request.request_pdf.save(pdf_file.name, pdf_file, save=True)
 
         notification_sent = send_new_request_notification(vacation_request)
-        notify_new_request(vacation_request)
+        push_sent = notify_new_request(vacation_request)
 
         if review.has_blocking_flags:
             messages.error(
@@ -273,6 +273,8 @@ def request_create(request):
 
         if notification_sent:
             messages.info(request, 'Administración ha recibido un aviso automático por email.')
+        if push_sent:
+            messages.info(request, f'Se han enviado avisos push a {push_sent} dispositivo(s) de revisión.')
         else:
             messages.warning(
                 request,
