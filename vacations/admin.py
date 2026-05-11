@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AuditLog, Employee, LoginAttempt, VacationDecision, VacationRequest
+from .models import DailyWorkReport, AuditLog, DailyWorkReport, Employee, LoginAttempt, VacationDecision, VacationRequest
 
 try:
     from .models import PushSubscription
@@ -26,6 +26,14 @@ class VacationDecisionAdmin(admin.ModelAdmin):
     list_display = ('request', 'decision', 'decided_by', 'decided_at')
     list_filter = ('decision', 'decided_at')
     search_fields = ('request__employee__first_name', 'request__employee__last_name', 'decided_by__username')
+
+
+@admin.register(DailyWorkReport)
+class DailyWorkReportAdmin(admin.ModelAdmin):
+    list_display = ('report_date', 'worker_name', 'employee', 'hours', 'trips', 'created_at')
+    list_filter = ('report_date', 'created_at')
+    search_fields = ('worker_name', 'employee__first_name', 'employee__last_name', 'client_1', 'client_2', 'work_performed')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(AuditLog)

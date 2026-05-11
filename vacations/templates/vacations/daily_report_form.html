@@ -1,0 +1,86 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Rellena tu parte personal</h1>
+      <p>Completa los datos diarios. Al enviar, se generará el PDF oficial y se enviará a administración.</p>
+    </div>
+    <a class="button secondary" href="{% url 'daily_report_list' %}">Ver partes</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <label>{{ form.report_date.label }}</label>
+      {{ form.report_date }}
+      {{ form.report_date.errors }}
+    </div>
+
+    <div class="form-row">
+      <label>{{ form.machine_number.label }}</label>
+      {{ form.machine_number }}
+    </div>
+
+    <div class="form-row">
+      <label>{{ form.truck_number.label }}</label>
+      {{ form.truck_number }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.other_equipment.label }}</label>
+      {{ form.other_equipment }}
+    </div>
+
+    <h2 class="span-2">Clientes</h2>
+    <div class="form-row"><label>{{ form.client_1.label }}</label>{{ form.client_1 }}</div>
+    <div class="form-row"><label>{{ form.client_2.label }}</label>{{ form.client_2 }}</div>
+    <div class="form-row"><label>{{ form.client_3.label }}</label>{{ form.client_3 }}</div>
+    <div class="form-row"><label>{{ form.client_4.label }}</label>{{ form.client_4 }}</div>
+
+    <h2 class="span-2">Obras</h2>
+    <div class="form-row"><label>{{ form.worksite_1.label }}</label>{{ form.worksite_1 }}</div>
+    <div class="form-row"><label>{{ form.worksite_2.label }}</label>{{ form.worksite_2 }}</div>
+    <div class="form-row"><label>{{ form.worksite_3.label }}</label>{{ form.worksite_3 }}</div>
+    <div class="form-row"><label>{{ form.worksite_4.label }}</label>{{ form.worksite_4 }}</div>
+
+    <div class="form-row">
+      <label>{{ form.hours.label }}</label>
+      {{ form.hours }}
+    </div>
+
+    <div class="form-row">
+      <label>{{ form.trips.label }}</label>
+      {{ form.trips }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.other_notes.label }}</label>
+      {{ form.other_notes }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.supplied_material.label }}</label>
+      {{ form.supplied_material }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.work_performed.label }}</label>
+      {{ form.work_performed }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.signature_name.label }}</label>
+      {{ form.signature_name }}
+      <small>Deja este campo vacío para usar automáticamente tu nombre.</small>
+    </div>
+
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Enviar parte personal</button>
+      <a class="button secondary" href="{% url 'dashboard' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,10 +1,15 @@
 from django.urls import path
 
 from . import views
+from . import daily_report_views
 from . import file_views
 from . import push_views
 
 urlpatterns = [
+    path('partes/', daily_report_views.daily_report_list, name='daily_report_list'),
+    path('partes/nuevo/', daily_report_views.daily_report_create, name='daily_report_create'),
+    path('partes/<int:pk>/', daily_report_views.daily_report_detail, name='daily_report_detail'),
+    path('partes/<int:pk>/pdf/', daily_report_views.daily_report_pdf, name='daily_report_pdf'),
     path('solicitudes/<int:pk>/justificante/', file_views.supporting_document_download, name='supporting_document_download'),
     path('notificaciones/', push_views.notification_settings, name='notification_settings'),
     path('push/public-key/', push_views.public_key, name='push_public_key'),

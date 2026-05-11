@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django import forms
 
-from .models import Employee, VacationDecision, VacationRequest
+from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport
 from .permissions import can_create_requests_for_others, get_employee_for_user
 from .services import business_days_between, committed_days_for_employee
 
@@ -117,3 +117,50 @@ class VacationDecisionForm(forms.ModelForm):
             )
 
         return cleaned
+
+class DailyWorkReportForm(forms.ModelForm):
+    class Meta:
+        model = DailyWorkReport
+        fields = [
+            'report_date',
+            'machine_number',
+            'truck_number',
+            'other_equipment',
+            'client_1',
+            'client_2',
+            'client_3',
+            'client_4',
+            'worksite_1',
+            'worksite_2',
+            'worksite_3',
+            'worksite_4',
+            'hours',
+            'trips',
+            'other_notes',
+            'supplied_material',
+            'work_performed',
+            'signature_name',
+        ]
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
+            'supplied_material': forms.Textarea(attrs={'rows': 2}),
+            'work_performed': forms.Textarea(attrs={'rows': 7}),
+        }
+
+    def __init__(self, *args, employee=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.employee = employee
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.employee is not None:
+            instance.employee = self.employee
+            instance.worker_name = self.employee.full_name
+        if not instance.signature_name:
+            instance.signature_name = instance.worker_name
+        if commit:
+            instance.save()
+        return instance

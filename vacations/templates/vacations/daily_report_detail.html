@@ -1,0 +1,43 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Parte personal diario</h1>
+      <p>{{ report.worker_name }} · {{ report.report_date|date:"d/m/Y" }}</p>
+    </div>
+    <div class="actions">
+      {% if report.pdf %}
+        <a class="button primary" href="{% url 'daily_report_pdf' report.pk %}">Descargar PDF</a>
+      {% endif %}
+      <a class="button secondary" href="{% url 'daily_report_list' %}">Volver</a>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <article class="person-card"><strong>Máquina</strong><span>{{ report.machine_number|default:"-" }}</span></article>
+    <article class="person-card"><strong>Camión</strong><span>{{ report.truck_number|default:"-" }}</span></article>
+    <article class="person-card"><strong>Horas</strong><span>{{ report.hours|default:"-" }}</span></article>
+    <article class="person-card"><strong>Viajes</strong><span>{{ report.trips|default:"-" }}</span></article>
+  </div>
+
+  <h2>Clientes y obras</h2>
+  <div class="grid two">
+    <article class="person-card"><strong>Cliente 1</strong><span>{{ report.client_1|default:"-" }}</span></article>
+    <article class="person-card"><strong>Obra 1</strong><span>{{ report.worksite_1|default:"-" }}</span></article>
+    <article class="person-card"><strong>Cliente 2</strong><span>{{ report.client_2|default:"-" }}</span></article>
+    <article class="person-card"><strong>Obra 2</strong><span>{{ report.worksite_2|default:"-" }}</span></article>
+    <article class="person-card"><strong>Cliente 3</strong><span>{{ report.client_3|default:"-" }}</span></article>
+    <article class="person-card"><strong>Obra 3</strong><span>{{ report.worksite_3|default:"-" }}</span></article>
+    <article class="person-card"><strong>Cliente 4</strong><span>{{ report.client_4|default:"-" }}</span></article>
+    <article class="person-card"><strong>Obra 4</strong><span>{{ report.worksite_4|default:"-" }}</span></article>
+  </div>
+
+  <h2>Material suministrado</h2>
+  <p>{{ report.supplied_material|linebreaksbr|default:"-" }}</p>
+
+  <h2>Trabajos realizados</h2>
+  <p>{{ report.work_performed|linebreaksbr|default:"-" }}</p>
+</section>
+{% endblock %}

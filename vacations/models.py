@@ -205,3 +205,56 @@ class LoginAttempt(models.Model):
         if self.blocked:
             result = 'BLOQUEADO'
         return f'{self.created_at:%Y-%m-%d %H:%M} · {self.ip_address} · {self.username} · {result}'
+
+class DailyWorkReport(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='daily_work_reports',
+        verbose_name='trabajador',
+    )
+    report_date = models.DateField('fecha')
+    machine_number = models.CharField('máquina nº', max_length=80, blank=True)
+    truck_number = models.CharField('camión nº', max_length=80, blank=True)
+    other_equipment = models.CharField('otros', max_length=255, blank=True)
+
+    client_1 = models.CharField('cliente 1', max_length=255, blank=True)
+    client_2 = models.CharField('cliente 2', max_length=255, blank=True)
+    client_3 = models.CharField('cliente 3', max_length=255, blank=True)
+    client_4 = models.CharField('cliente 4', max_length=255, blank=True)
+
+    worksite_1 = models.CharField('obra 1', max_length=255, blank=True)
+    worksite_2 = models.CharField('obra 2', max_length=255, blank=True)
+    worksite_3 = models.CharField('obra 3', max_length=255, blank=True)
+    worksite_4 = models.CharField('obra 4', max_length=255, blank=True)
+
+    hours = models.CharField('horas', max_length=80, blank=True)
+    trips = models.CharField('viajes', max_length=80, blank=True)
+    other_notes = models.CharField('otros', max_length=255, blank=True)
+
+    supplied_material = models.TextField('material suministrado', blank=True)
+    work_performed = models.TextField('trabajos realizados', blank=True)
+
+    worker_name = models.CharField('nombre del trabajador', max_length=255)
+    signature_name = models.CharField('firma', max_length=255, blank=True)
+
+    pdf = models.FileField('PDF generado', upload_to='daily_work_reports/', blank=True, null=True)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_daily_work_reports',
+        verbose_name='creado por',
+    )
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        ordering = ['-report_date', '-created_at']
+        verbose_name = 'parte personal diario'
+        verbose_name_plural = 'partes personales diarios'
+
+    def __str__(self):
+        return f'{self.worker_name} · {self.report_date:%d/%m/%Y}'
