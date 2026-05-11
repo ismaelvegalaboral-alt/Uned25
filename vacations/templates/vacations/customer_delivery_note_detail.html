@@ -1,0 +1,41 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Albarán de cliente</h1>
+      <p>{{ note.customer_name }} · {{ note.note_date|date:"d/m/Y" }}</p>
+    </div>
+    <div class="actions">
+      {% if note.pdf %}
+        <a class="button primary" href="{% url 'customer_delivery_note_pdf' note.pk %}">Descargar PDF</a>
+      {% endif %}
+      <a class="button secondary" href="{% url 'customer_delivery_note_list' %}">Volver</a>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <article class="person-card"><strong>Cliente</strong><span>{{ note.customer_name }}</span></article>
+    <article class="person-card"><strong>Teléfono</strong><span>{{ note.phone|default:"-" }}</span></article>
+    <article class="person-card"><strong>CIF/NIF</strong><span>{{ note.tax_id|default:"-" }}</span></article>
+    <article class="person-card"><strong>Obra</strong><span>{{ note.worksite|default:"-" }}</span></article>
+    <article class="person-card"><strong>Dirección</strong><span>{{ note.address|default:"-" }}</span></article>
+    <article class="person-card"><strong>Recibí conforme</strong><span>{{ note.received_by|default:"-" }}</span></article>
+  </div>
+
+  <h2>Descripción de trabajos realizados</h2>
+  <p>{{ note.work_description|linebreaksbr|default:"-" }}</p>
+
+  <h2>Otros conceptos o materiales</h2>
+  <p>{{ note.materials|linebreaksbr|default:"-" }}</p>
+
+  <h2>Observaciones</h2>
+  <p>{{ note.observations|linebreaksbr|default:"-" }}</p>
+
+  {% if note.signature_image %}
+    <h2>Firma del cliente</h2>
+    <img src="{{ note.signature_image.url }}" alt="Firma cliente" style="max-width: 360px; border: 1px solid #d6def7; border-radius: 12px; background: #fff;">
+  {% endif %}
+</section>
+{% endblock %}

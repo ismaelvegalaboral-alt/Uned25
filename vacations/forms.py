@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django import forms
 
-from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport
+from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport, CustomerDeliveryNote
 from .permissions import can_create_requests_for_others, get_employee_for_user
 from .services import business_days_between, committed_days_for_employee
 
@@ -161,6 +161,73 @@ class DailyWorkReportForm(forms.ModelForm):
             instance.worker_name = self.employee.full_name
         if not instance.signature_name:
             instance.signature_name = instance.worker_name
+        if commit:
+            instance.save()
+        return instance
+
+class CustomerDeliveryNoteForm(forms.ModelForm):
+    signature_data = forms.CharField(widget=forms.HiddenInput(), required=True)
+
+    class Meta:
+        model = CustomerDeliveryNote
+        fields = [
+            'note_date',
+            'customer_name',
+            'phone',
+            'tax_id',
+            'worksite',
+            'address',
+            'machine_1',
+            'machine_1_hours',
+            'machine_2',
+            'machine_2_hours',
+            'truck_1',
+            'truck_1_hours',
+            'truck_1_trips',
+            'truck_2',
+            'truck_2_hours',
+            'truck_2_trips',
+            'truck_3',
+            'truck_3_hours',
+            'truck_3_trips',
+            'truck_4',
+            'truck_4_hours',
+            'truck_4_trips',
+            'truck_5',
+            'truck_5_hours',
+            'truck_5_trips',
+            'work_description',
+            'materials',
+            'observations',
+            'received_by',
+            'signature_data',
+        ]
+        widgets = {
+            'note_date': forms.DateInput(attrs={'type': 'date'}),
+            'work_description': forms.Textarea(attrs={'rows': 5}),
+            'materials': forms.Textarea(attrs={'rows': 5}),
+            'observations': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, employee=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.employee = employee
+        for name, field in self.fields.items():
+            if name == 'signature_data':
+                continue
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+    def clean_signature_data(self):
+        data = self.cleaned_data.get('signature_data', '')
+        if not data.startswith('data:image/png;base64,'):
+            raise forms.ValidationError('El cliente debe firmar el albarán.')
+        return data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.employee is not None:
+            instance.employee = self.employee
         if commit:
             instance.save()
         return instance

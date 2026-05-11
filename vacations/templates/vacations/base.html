@@ -93,6 +93,7 @@
       {% if can_create_request %}<a href="{% url 'request_create' %}">Nueva solicitud</a>{% endif %}
       {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
             <a href="{% url 'daily_report_create' %}">Parte personal</a>
+              <a href="{% url 'customer_delivery_note_create' %}">Albar&aacute;n cliente</a>
       </nav>
     <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Salir</button></form>
   </aside>

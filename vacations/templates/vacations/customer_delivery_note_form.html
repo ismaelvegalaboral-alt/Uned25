@@ -1,0 +1,180 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Albarán de cliente</h1>
+      <p>Rellena los datos, pide la firma del cliente y genera el PDF oficial.</p>
+    </div>
+    <a class="button secondary" href="{% url 'customer_delivery_note_list' %}">Ver albaranes</a>
+  </div>
+
+  <form method="post" id="customer-delivery-note-form" class="form-grid">
+    {% csrf_token %}
+
+    <h2 class="span-2">Datos generales</h2>
+
+    <div class="form-row"><label>{{ form.note_date.label }}</label>{{ form.note_date }}{{ form.note_date.errors }}</div>
+    <div class="form-row"><label>{{ form.customer_name.label }}</label>{{ form.customer_name }}{{ form.customer_name.errors }}</div>
+    <div class="form-row"><label>{{ form.phone.label }}</label>{{ form.phone }}</div>
+    <div class="form-row"><label>{{ form.tax_id.label }}</label>{{ form.tax_id }}</div>
+    <div class="form-row"><label>{{ form.worksite.label }}</label>{{ form.worksite }}</div>
+    <div class="form-row"><label>{{ form.address.label }}</label>{{ form.address }}</div>
+
+    <h2 class="span-2">Máquinas</h2>
+    <div class="form-row"><label>{{ form.machine_1.label }}</label>{{ form.machine_1 }}</div>
+    <div class="form-row"><label>{{ form.machine_1_hours.label }}</label>{{ form.machine_1_hours }}</div>
+    <div class="form-row"><label>{{ form.machine_2.label }}</label>{{ form.machine_2 }}</div>
+    <div class="form-row"><label>{{ form.machine_2_hours.label }}</label>{{ form.machine_2_hours }}</div>
+
+    <h2 class="span-2">Camiones</h2>
+    {% for field in form %}
+      {% if field.name|slice:":6" == "truck_" %}
+        <div class="form-row"><label>{{ field.label }}</label>{{ field }}</div>
+      {% endif %}
+    {% endfor %}
+
+    <h2 class="span-2">Trabajos y materiales</h2>
+    <div class="form-row span-2"><label>{{ form.work_description.label }}</label>{{ form.work_description }}</div>
+    <div class="form-row span-2"><label>{{ form.materials.label }}</label>{{ form.materials }}</div>
+    <div class="form-row span-2"><label>{{ form.observations.label }}</label>{{ form.observations }}</div>
+
+    <h2 class="span-2">Recibí conforme</h2>
+    <div class="form-row span-2">
+      <label>{{ form.received_by.label }}</label>
+      {{ form.received_by }}
+      <small>Nombre de la persona que firma por el cliente.</small>
+    </div>
+
+    <div class="form-row span-2">
+      <label>Firma del cliente</label>
+      <div class="signature-wrapper">
+        <canvas id="signature-pad" width="700" height="220"></canvas>
+      </div>
+      {{ form.signature_data }}
+      {{ form.signature_data.errors }}
+      <div class="form-actions">
+        <button type="button" class="button secondary" id="clear-signature">Borrar firma</button>
+      </div>
+      <small>El cliente debe firmar con el dedo o el ratón dentro del recuadro.</small>
+    </div>
+
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Guardar y generar albarán</button>
+      <a class="button secondary" href="{% url 'dashboard' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<style>
+.signature-wrapper {
+  width: 100%;
+  border: 2px dashed #8aa1de;
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#signature-pad {
+  width: 100%;
+  height: 220px;
+  display: block;
+  background: #fff;
+}
+</style>
+
+<script>
+(function() {
+  const canvas = document.getElementById("signature-pad");
+  const input = document.getElementById("id_signature_data");
+  const clearButton = document.getElementById("clear-signature");
+  const form = document.getElementById("customer-delivery-note-form");
+  const ctx = canvas.getContext("2d");
+
+  let drawing = false;
+  let hasSignature = false;
+
+  function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+
+    const data = hasSignature ? canvas.toDataURL("image/png") : null;
+
+    canvas.width = rect.width * ratio;
+    canvas.height = 220 * ratio;
+    ctx.scale(ratio, ratio);
+
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#102d73";
+
+    if (data) {
+      const img = new Image();
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, rect.width, 220);
+      };
+      img.src = data;
+    }
+  }
+
+  function point(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+  }
+
+  function start(event) {
+    event.preventDefault();
+    drawing = true;
+    hasSignature = true;
+    const p = point(event);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+
+  function move(event) {
+    if (!drawing) return;
+    event.preventDefault();
+    const p = point(event);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+
+  function end(event) {
+    if (!drawing) return;
+    event.preventDefault();
+    drawing = false;
+    input.value = canvas.toDataURL("image/png");
+  }
+
+  canvas.addEventListener("pointerdown", start);
+  canvas.addEventListener("pointermove", move);
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointerleave", end);
+  canvas.addEventListener("pointercancel", end);
+
+  clearButton.addEventListener("click", function() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    input.value = "";
+    hasSignature = false;
+  });
+
+  form.addEventListener("submit", function(event) {
+    if (!hasSignature || !input.value) {
+      event.preventDefault();
+      alert("El cliente debe firmar el albarán antes de enviarlo.");
+      return false;
+    }
+    input.value = canvas.toDataURL("image/png");
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+})();
+</script>
+{% endblock %}

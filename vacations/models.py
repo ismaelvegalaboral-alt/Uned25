@@ -258,3 +258,66 @@ class DailyWorkReport(models.Model):
 
     def __str__(self):
         return f'{self.worker_name} · {self.report_date:%d/%m/%Y}'
+
+class CustomerDeliveryNote(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='customer_delivery_notes',
+        verbose_name='trabajador',
+    )
+    note_date = models.DateField('fecha')
+
+    customer_name = models.CharField('cliente', max_length=255)
+    phone = models.CharField('teléfono', max_length=80, blank=True)
+    tax_id = models.CharField('CIF/NIF', max_length=80, blank=True)
+    worksite = models.CharField('obra', max_length=255, blank=True)
+    address = models.CharField('dirección', max_length=255, blank=True)
+
+    machine_1 = models.CharField('máquina 1', max_length=255, blank=True)
+    machine_1_hours = models.CharField('horas máquina 1', max_length=80, blank=True)
+    machine_2 = models.CharField('máquina 2', max_length=255, blank=True)
+    machine_2_hours = models.CharField('horas máquina 2', max_length=80, blank=True)
+
+    truck_1 = models.CharField('camión 1', max_length=255, blank=True)
+    truck_1_hours = models.CharField('horas camión 1', max_length=80, blank=True)
+    truck_1_trips = models.CharField('viajes camión 1', max_length=80, blank=True)
+    truck_2 = models.CharField('camión 2', max_length=255, blank=True)
+    truck_2_hours = models.CharField('horas camión 2', max_length=80, blank=True)
+    truck_2_trips = models.CharField('viajes camión 2', max_length=80, blank=True)
+    truck_3 = models.CharField('camión 3', max_length=255, blank=True)
+    truck_3_hours = models.CharField('horas camión 3', max_length=80, blank=True)
+    truck_3_trips = models.CharField('viajes camión 3', max_length=80, blank=True)
+    truck_4 = models.CharField('camión 4', max_length=255, blank=True)
+    truck_4_hours = models.CharField('horas camión 4', max_length=80, blank=True)
+    truck_4_trips = models.CharField('viajes camión 4', max_length=80, blank=True)
+    truck_5 = models.CharField('camión 5', max_length=255, blank=True)
+    truck_5_hours = models.CharField('horas camión 5', max_length=80, blank=True)
+    truck_5_trips = models.CharField('viajes camión 5', max_length=80, blank=True)
+
+    work_description = models.TextField('descripción de trabajos realizados', blank=True)
+    materials = models.TextField('otros conceptos o materiales', blank=True)
+    observations = models.TextField('observaciones', blank=True)
+
+    received_by = models.CharField('recibí conforme', max_length=255, blank=True)
+    signature_image = models.FileField('firma cliente', upload_to='customer_delivery_notes/signatures/', blank=True, null=True)
+    pdf = models.FileField('PDF generado', upload_to='customer_delivery_notes/', blank=True, null=True)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_customer_delivery_notes',
+        verbose_name='creado por',
+    )
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        ordering = ['-note_date', '-created_at']
+        verbose_name = 'albarán de cliente'
+        verbose_name_plural = 'albaranes de cliente'
+
+    def __str__(self):
+        return f'{self.customer_name} · {self.note_date:%d/%m/%Y}'
