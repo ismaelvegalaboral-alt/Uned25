@@ -1,0 +1,25 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Nueva faena diaria</h1>
+      <p>Crea la planificación base del día.</p>
+    </div>
+    <a class="button secondary" href="{% url 'daily_job_plan_list' %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row"><label>{{ form.plan_date.label }}</label>{{ form.plan_date }}{{ form.plan_date.errors }}</div>
+    <div class="form-row"><label>{{ form.title.label }}</label>{{ form.title }}</div>
+    <div class="form-row span-2"><label>{{ form.notes.label }}</label>{{ form.notes }}</div>
+    <div class="form-row span-2"><label>{{ form.is_published }} {{ form.is_published.label }}</label><small>Si la publicas, los trabajadores podrán ver su faena asignada.</small></div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Crear faena</button>
+      <a class="button secondary" href="{% url 'daily_job_plan_list' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

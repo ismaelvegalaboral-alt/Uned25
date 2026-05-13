@@ -1,0 +1,24 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>{% if mode == "edit" %}Editar estado{% else %}Añadir estado a la faena{% endif %}</h1>
+      <p>{{ plan.plan_date|date:"d/m/Y" }}</p>
+    </div>
+    <a class="button secondary" href="{% url 'daily_job_plan_detail' plan.pk %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row"><label>{{ form.status_type.label }}</label>{{ form.status_type }}</div>
+    <div class="form-row"><label>{{ form.sort_order.label }}</label>{{ form.sort_order }}</div>
+    <div class="form-row span-2"><label>{{ form.text.label }}</label>{{ form.text }}</div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">{% if mode == "edit" %}Guardar cambios{% else %}Guardar estado{% endif %}</button>
+      <a class="button secondary" href="{% url 'daily_job_plan_detail' plan.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

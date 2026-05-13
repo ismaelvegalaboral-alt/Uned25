@@ -1,0 +1,17 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <h1>Confirmar eliminación</h1>
+  <p>Vas a eliminar:</p>
+  <article class="person-card">
+    <strong>{{ object }}</strong>
+  </article>
+
+  <form method="post" class="form-actions">
+    {% csrf_token %}
+    <button class="button primary" type="submit">Sí, eliminar</button>
+    <a class="button secondary" href="{% url cancel_url plan.pk %}">Cancelar</a>
+  </form>
+</section>
+{% endblock %}

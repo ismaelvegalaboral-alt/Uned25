@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from .daily_report_pdf import build_daily_work_report_pdf
 from .forms import DailyWorkReportForm
-from .models import DailyWorkReport, Employee
+from .models import DailyJobAssignment, DailyWorkReport, Employee
 
 try:
     from .audit import log_action
@@ -103,6 +103,27 @@ def daily_report_list(request):
     return render(request, 'vacations/daily_report_list.html', {'reports': qs})
 
 
+def _daily_job_assignment_initial(request):
+    assignment_id = request.GET.get('assignment')
+    if not assignment_id:
+        return {}
+
+    try:
+        assignment = DailyJobAssignment.objects.select_related('plan').get(pk=assignment_id)
+    except Exception:
+        return {}
+
+    return {
+        'report_date': assignment.plan.plan_date,
+        'client_1': assignment.client,
+        'worksite_1': assignment.worksite,
+        'machine_number': assignment.machine,
+        'truck_number': assignment.truck,
+        'hours': assignment.hours,
+        'trips': assignment.trips,
+        'work_performed': assignment.notes,
+    }
+
 @login_required
 def daily_report_create(request):
     employee = _employee_for_user(request.user)
@@ -144,7 +165,9 @@ def daily_report_create(request):
 
             return redirect('daily_report_detail', pk=report.pk)
     else:
-        form = DailyWorkReportForm(employee=employee, initial={'worker_name': employee.full_name})
+        initial = {'worker_name': employee.full_name}
+        initial.update(_daily_job_assignment_initial(request))
+        form = DailyWorkReportForm(employee=employee, initial=initial)
 
     return render(request, 'vacations/daily_report_form.html', {'form': form, 'employee': employee})
 

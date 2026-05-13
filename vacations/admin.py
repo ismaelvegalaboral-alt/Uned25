@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DailyWorkReport, AuditLog, DailyWorkReport, Employee, LoginAttempt, VacationDecision, VacationRequest, CustomerDeliveryNote
+from .models import DailyWorkReport, AuditLog, DailyWorkReport, Employee, LoginAttempt, VacationDecision, VacationRequest, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry
 
 try:
     from .models import PushSubscription
@@ -26,6 +26,39 @@ class VacationDecisionAdmin(admin.ModelAdmin):
     list_display = ('request', 'decision', 'decided_by', 'decided_at')
     list_filter = ('decision', 'decided_at')
     search_fields = ('request__employee__first_name', 'request__employee__last_name', 'decided_by__username')
+
+
+class DailyJobAssignmentInline(admin.TabularInline):
+    model = DailyJobAssignment
+    extra = 0
+
+
+class DailyJobStatusEntryInline(admin.TabularInline):
+    model = DailyJobStatusEntry
+    extra = 0
+
+
+@admin.register(DailyJobPlan)
+class DailyJobPlanAdmin(admin.ModelAdmin):
+    list_display = ('plan_date', 'title', 'is_published', 'created_by', 'created_at')
+    list_filter = ('is_published', 'plan_date')
+    search_fields = ('title', 'notes')
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [DailyJobAssignmentInline, DailyJobStatusEntryInline]
+
+
+@admin.register(DailyJobAssignment)
+class DailyJobAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('plan', 'category', 'client', 'worksite', 'machine', 'truck', 'worker_name', 'hours', 'trips')
+    list_filter = ('category', 'plan__plan_date')
+    search_fields = ('client', 'worksite', 'machine', 'truck', 'worker_name', 'notes')
+
+
+@admin.register(DailyJobStatusEntry)
+class DailyJobStatusEntryAdmin(admin.ModelAdmin):
+    list_display = ('plan', 'status_type', 'text', 'sort_order')
+    list_filter = ('status_type', 'plan__plan_date')
+    search_fields = ('text',)
 
 
 @admin.register(CustomerDeliveryNote)

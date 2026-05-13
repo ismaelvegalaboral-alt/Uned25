@@ -94,6 +94,7 @@
       {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
             <a href="{% url 'daily_report_create' %}">Parte personal</a>
               <a href="{% url 'customer_delivery_note_create' %}">Albar&aacute;n cliente</a>
+              <a href="{% url 'daily_job_plan_list' %}">Faena diaria</a>
       </nav>
     <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Salir</button></form>
   </aside>

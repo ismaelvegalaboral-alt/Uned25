@@ -321,3 +321,117 @@ class CustomerDeliveryNote(models.Model):
 
     def __str__(self):
         return f'{self.customer_name} · {self.note_date:%d/%m/%Y}'
+
+class DailyJobPlan(models.Model):
+    plan_date = models.DateField('fecha de faena', unique=True)
+    title = models.CharField('título', max_length=255, blank=True)
+    notes = models.TextField('notas generales', blank=True)
+    is_published = models.BooleanField('publicada para trabajadores', default=False)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_daily_job_plans',
+        verbose_name='creada por',
+    )
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        ordering = ['-plan_date']
+        verbose_name = 'faena diaria'
+        verbose_name_plural = 'faenas diarias'
+
+    def __str__(self):
+        return self.title or f'Faena {self.plan_date:%d/%m/%Y}'
+
+
+class DailyJobAssignment(models.Model):
+    CATEGORY_WORK = 'work'
+    CATEGORY_MAINTENANCE = 'maintenance'
+    CATEGORY_WORKSHOP = 'workshop'
+    CATEGORY_TRAINING = 'training'
+    CATEGORY_STOPPED = 'stopped'
+    CATEGORY_SUBCONTRACTED = 'subcontracted'
+    CATEGORY_OTHER = 'other'
+
+    CATEGORY_CHOICES = [
+        (CATEGORY_WORK, 'Trabajo/obra'),
+        (CATEGORY_MAINTENANCE, 'Mantenimiento'),
+        (CATEGORY_WORKSHOP, 'Taller/ITV'),
+        (CATEGORY_TRAINING, 'Formación'),
+        (CATEGORY_STOPPED, 'Parado'),
+        (CATEGORY_SUBCONTRACTED, 'Subcontratado/alquilado'),
+        (CATEGORY_OTHER, 'Varios'),
+    ]
+
+    plan = models.ForeignKey(DailyJobPlan, on_delete=models.CASCADE, related_name='assignments', verbose_name='faena')
+    category = models.CharField('tipo', max_length=30, choices=CATEGORY_CHOICES, default=CATEGORY_WORK)
+    client = models.CharField('cliente', max_length=255, blank=True)
+    worksite = models.CharField('obra/zona', max_length=255, blank=True)
+    machine = models.CharField('máquina', max_length=255, blank=True)
+    truck = models.CharField('camión', max_length=255, blank=True)
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='daily_job_assignments',
+        verbose_name='trabajador',
+    )
+    worker_name = models.CharField('nombre del trabajador', max_length=255, blank=True)
+    hours = models.CharField('horas previstas', max_length=80, blank=True)
+    trips = models.CharField('viajes previstos', max_length=80, blank=True)
+    notes = models.TextField('observaciones', blank=True)
+    sort_order = models.PositiveIntegerField('orden', default=0)
+
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'client', 'worksite', 'machine', 'truck', 'worker_name']
+        verbose_name = 'línea de faena'
+        verbose_name_plural = 'líneas de faena'
+
+    def __str__(self):
+        worker = self.worker_name or (self.employee.full_name if self.employee else 'Sin trabajador')
+        target = self.worksite or self.client or self.machine or self.truck or self.get_category_display()
+        return f'{worker} · {target}'
+
+    def save(self, *args, **kwargs):
+        if self.employee and not self.worker_name:
+            self.worker_name = self.employee.full_name
+        super().save(*args, **kwargs)
+
+
+class DailyJobStatusEntry(models.Model):
+    STATUS_CHOICES = [
+        ('vacation', 'Vacaciones'),
+        ('personal_leave', 'Asuntos propios'),
+        ('sick_leave', 'Baja médica/enfermo'),
+        ('medical_check', 'Reconocimiento'),
+        ('maintenance', 'Mantenimiento'),
+        ('workshop', 'Taller/ITV'),
+        ('training', 'Formación'),
+        ('stopped', 'Parado'),
+        ('subcontracted', 'Subcontratado/alquilado'),
+        ('various', 'Varios'),
+    ]
+
+    plan = models.ForeignKey(DailyJobPlan, on_delete=models.CASCADE, related_name='status_entries', verbose_name='faena')
+    status_type = models.CharField('estado', max_length=40, choices=STATUS_CHOICES)
+    text = models.TextField('detalle')
+    sort_order = models.PositiveIntegerField('orden', default=0)
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        ordering = ['status_type', 'sort_order', 'text']
+        verbose_name = 'estado de faena'
+        verbose_name_plural = 'estados de faena'
+
+    def __str__(self):
+        return f'{self.get_status_type_display()}: {self.text[:60]}'

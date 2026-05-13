@@ -1,0 +1,46 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Mi faena</h1>
+      <p>Consulta tus asignaciones publicadas.</p>
+    </div>
+  </div>
+
+  {% if not employee %}
+    <p>Tu usuario no tiene una ficha de trabajador asociada. Contacta con administración.</p>
+  {% endif %}
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Cliente</th><th>Obra/Zona</th><th>Máquina</th><th>Camión</th><th>Horas</th><th>Viajes</th><th>Observaciones</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in assignments %}
+          <tr>
+            <td><a href="{% url 'daily_job_plan_detail' item.plan.pk %}">{{ item.plan.plan_date|date:"d/m/Y" }}</a></td>
+            <td>{{ item.client|default:"-" }}</td>
+            <td>{{ item.worksite|default:"-" }}</td>
+            <td>{{ item.machine|default:"-" }}</td>
+            <td>{{ item.truck|default:"-" }}</td>
+            <td>{{ item.hours|default:"-" }}</td>
+            <td>{{ item.trips|default:"-" }}</td>
+            <td>{{ item.notes|linebreaksbr|default:"-" }}</td>
+            <td>
+              <a href="{% url 'daily_report_create' %}?assignment={{ item.pk }}">Parte</a> ·
+              <a href="{% url 'customer_delivery_note_create' %}?assignment={{ item.pk }}">Albarán</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="9">No tienes faena publicada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

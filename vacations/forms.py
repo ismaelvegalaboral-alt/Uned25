@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django import forms
 
-from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport, CustomerDeliveryNote
+from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry
 from .permissions import can_create_requests_for_others, get_employee_for_user
 from .services import business_days_between, committed_days_for_employee
 
@@ -231,3 +231,49 @@ class CustomerDeliveryNoteForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class DailyJobPlanForm(forms.ModelForm):
+    class Meta:
+        model = DailyJobPlan
+        fields = ['plan_date', 'title', 'notes', 'is_published']
+        widgets = {
+            'plan_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+
+class DailyJobAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = DailyJobAssignment
+        fields = ['category', 'client', 'worksite', 'machine', 'truck', 'employee', 'worker_name', 'hours', 'trips', 'notes', 'sort_order']
+        widgets = {'notes': forms.Textarea(attrs={'rows': 3})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'employee' in self.fields:
+            self.fields['employee'].required = False
+            self.fields['employee'].label_from_instance = lambda obj: obj.full_name
+
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+
+class DailyJobStatusEntryForm(forms.ModelForm):
+    class Meta:
+        model = DailyJobStatusEntry
+        fields = ['status_type', 'text', 'sort_order']
+        widgets = {'text': forms.Textarea(attrs={'rows': 3})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()

@@ -13,7 +13,7 @@ from django.urls import reverse
 
 from .customer_delivery_note_pdf import build_customer_delivery_note_pdf
 from .forms import CustomerDeliveryNoteForm
-from .models import CustomerDeliveryNote, Employee
+from .models import CustomerDeliveryNote, DailyJobAssignment, Employee
 
 try:
     from .audit import log_action
@@ -122,6 +122,28 @@ def customer_delivery_note_list(request):
     return render(request, 'vacations/customer_delivery_note_list.html', {'notes': qs})
 
 
+def _daily_job_assignment_initial(request):
+    assignment_id = request.GET.get('assignment')
+    if not assignment_id:
+        return {}
+
+    try:
+        assignment = DailyJobAssignment.objects.select_related('plan').get(pk=assignment_id)
+    except Exception:
+        return {}
+
+    return {
+        'note_date': assignment.plan.plan_date,
+        'customer_name': assignment.client,
+        'worksite': assignment.worksite,
+        'machine_1': assignment.machine,
+        'machine_1_hours': assignment.hours if assignment.machine else '',
+        'truck_1': assignment.truck,
+        'truck_1_hours': assignment.hours if assignment.truck else '',
+        'truck_1_trips': assignment.trips,
+        'work_description': assignment.notes,
+    }
+
 @login_required
 def customer_delivery_note_create(request):
     employee = _employee_for_user(request.user)
@@ -163,7 +185,7 @@ def customer_delivery_note_create(request):
 
             return redirect('customer_delivery_note_detail', pk=note.pk)
     else:
-        form = CustomerDeliveryNoteForm(employee=employee)
+        form = CustomerDeliveryNoteForm(employee=employee, initial=_daily_job_assignment_initial(request))
 
     return render(request, 'vacations/customer_delivery_note_form.html', {'form': form})
 

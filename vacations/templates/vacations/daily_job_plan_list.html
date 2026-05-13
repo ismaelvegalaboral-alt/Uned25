@@ -1,0 +1,59 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Faena diaria</h1>
+      <p>Planificación diaria de obras, máquinas, camiones y operarios.</p>
+    </div>
+    <div class="actions">
+      <a class="button secondary" href="{% url 'daily_job_panel' %}">Vista panel</a>
+      <a class="button primary" href="{% url 'daily_job_plan_create' %}">Nueva faena</a>
+    </div>
+  </div>
+
+  <form method="get" class="form-grid">
+    <div class="form-row span-2">
+      <label>Buscar</label>
+      <input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Cliente, obra, máquina, camión, trabajador...">
+    </div>
+    <div class="form-actions span-2">
+      <button class="button secondary" type="submit">Buscar</button>
+      <a class="button secondary" href="{% url 'daily_job_plan_list' %}">Limpiar</a>
+    </div>
+  </form>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Título</th>
+          <th>Estado</th>
+          <th>Líneas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for plan in plans %}
+          <tr>
+            <td><a href="{% url 'daily_job_plan_detail' plan.pk %}">{{ plan.plan_date|date:"d/m/Y" }}</a></td>
+            <td>{{ plan.title|default:"Faena diaria" }}</td>
+            <td>{% if plan.is_published %}Publicada{% else %}Borrador{% endif %}</td>
+            <td>{{ plan.assignments.count }}</td>
+            <td>
+              <a href="{% url 'daily_job_plan_detail' plan.pk %}">Ver</a> ·
+              <a href="{% url 'daily_job_plan_copy' plan.pk %}">Copiar</a> ·
+              <a href="{% url 'daily_job_plan_csv' plan.pk %}">CSV</a> ·
+              <a href="{% url 'daily_job_plan_excel' plan.pk %}">Excel</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5">Todavía no hay faenas creadas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

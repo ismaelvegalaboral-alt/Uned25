@@ -1,0 +1,29 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Copiar faena</h1>
+      <p>Origen: {{ source.plan_date|date:"d/m/Y" }}</p>
+    </div>
+    <a class="button secondary" href="{% url 'daily_job_plan_detail' source.pk %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row">
+      <label>Nueva fecha</label>
+      <input class="form-control" type="date" name="plan_date" required>
+    </div>
+    <div class="form-row">
+      <label>Título</label>
+      <input class="form-control" type="text" name="title" placeholder="Faena diaria">
+    </div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Copiar faena</button>
+      <a class="button secondary" href="{% url 'daily_job_plan_detail' source.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

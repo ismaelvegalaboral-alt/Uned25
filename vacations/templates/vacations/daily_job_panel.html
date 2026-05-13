@@ -1,0 +1,87 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Panel de faena</h1>
+      <p>Vista agrupada por cliente y obra.</p>
+    </div>
+    <div class="actions">
+      <a class="button secondary" href="{% url 'daily_job_plan_list' %}">Listado</a>
+      <a class="button primary" href="{% url 'daily_job_plan_create' %}">Nueva faena</a>
+    </div>
+  </div>
+
+  <form method="get" class="form-grid">
+    <div class="form-row">
+      <label>Fecha</label>
+      <input class="form-control" type="date" name="date" value="{{ selected_date }}">
+    </div>
+    <div class="form-actions">
+      <button class="button secondary" type="submit">Ver fecha</button>
+    </div>
+  </form>
+
+  {% if not plan %}
+    <p>No hay faenas creadas.</p>
+  {% else %}
+    <h2>{{ plan.plan_date|date:"l d/m/Y" }} · {% if plan.is_published %}Publicada{% else %}Borrador{% endif %}</h2>
+
+    <div class="actions">
+      <a class="button primary" href="{% url 'daily_job_assignment_create' plan.pk %}">Añadir línea</a>
+      <a class="button secondary" href="{% url 'daily_job_plan_detail' plan.pk %}">Ver detalle</a>
+      <a class="button secondary" href="{% url 'daily_job_plan_csv' plan.pk %}">Exportar CSV</a>
+      <a class="button secondary" href="{% url 'daily_job_plan_excel' plan.pk %}">Exportar Excel plantilla</a>
+    </div>
+
+    {% for group in groups %}
+      <article class="card nested-card">
+        <h3>{{ group.client }} · {{ group.worksite }}</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Máquina</th>
+                <th>Camión</th>
+                <th>Trabajador</th>
+                <th>Horas</th>
+                <th>Viajes</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in group.items %}
+                <tr>
+                  <td>{{ item.get_category_display }}</td>
+                  <td>{{ item.machine|default:"-" }}</td>
+                  <td>{{ item.truck|default:"-" }}</td>
+                  <td>{% if item.worker_name %}{{ item.worker_name }}{% elif item.employee %}{{ item.employee }}{% else %}-{% endif %}</td>
+                  <td>{{ item.hours|default:"-" }}</td>
+                  <td>{{ item.trips|default:"-" }}</td>
+                  <td>{{ item.notes|linebreaksbr|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    {% endfor %}
+
+    <h2>Estados</h2>
+    <div class="grid two">
+      {% for label, entries in status_groups %}
+        <article class="person-card">
+          <strong>{{ label }}</strong>
+          {% for entry in entries %}
+            <span>{{ entry.text|linebreaksbr }}</span>
+          {% endfor %}
+        </article>
+      {% empty %}
+        <p>No hay estados añadidos.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

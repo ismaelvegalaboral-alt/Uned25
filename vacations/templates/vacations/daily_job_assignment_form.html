@@ -1,0 +1,32 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>{% if mode == "edit" %}Editar línea de faena{% else %}Añadir línea de faena{% endif %}</h1>
+      <p>{{ plan.plan_date|date:"d/m/Y" }}</p>
+    </div>
+    <a class="button secondary" href="{% url 'daily_job_plan_detail' plan.pk %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row"><label>{{ form.category.label }}</label>{{ form.category }}</div>
+    <div class="form-row"><label>{{ form.sort_order.label }}</label>{{ form.sort_order }}</div>
+    <div class="form-row"><label>{{ form.client.label }}</label>{{ form.client }}</div>
+    <div class="form-row"><label>{{ form.worksite.label }}</label>{{ form.worksite }}</div>
+    <div class="form-row"><label>{{ form.machine.label }}</label>{{ form.machine }}</div>
+    <div class="form-row"><label>{{ form.truck.label }}</label>{{ form.truck }}</div>
+    <div class="form-row"><label>{{ form.employee.label }}</label>{{ form.employee }}</div>
+    <div class="form-row"><label>{{ form.worker_name.label }}</label>{{ form.worker_name }}<small>Úsalo si el trabajador no está dado de alta.</small></div>
+    <div class="form-row"><label>{{ form.hours.label }}</label>{{ form.hours }}</div>
+    <div class="form-row"><label>{{ form.trips.label }}</label>{{ form.trips }}</div>
+    <div class="form-row span-2"><label>{{ form.notes.label }}</label>{{ form.notes }}</div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">{% if mode == "edit" %}Guardar cambios{% else %}Guardar línea{% endif %}</button>
+      <a class="button secondary" href="{% url 'daily_job_plan_detail' plan.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

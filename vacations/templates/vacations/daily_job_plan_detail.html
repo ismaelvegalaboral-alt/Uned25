@@ -1,0 +1,93 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Faena diaria</h1>
+      <p>{{ plan.plan_date|date:"l d/m/Y" }} · {% if plan.is_published %}Publicada{% else %}Borrador{% endif %}</p>
+    </div>
+    <div class="actions">
+      {% if can_manage %}
+        {% if not plan.is_published %}
+          <a class="button primary" href="{% url 'daily_job_plan_publish' plan.pk %}">Publicar</a>
+        {% else %}
+          <a class="button secondary" href="{% url 'daily_job_plan_unpublish' plan.pk %}">Ocultar</a>
+        {% endif %}
+        <a class="button primary" href="{% url 'daily_job_assignment_create' plan.pk %}">Añadir línea</a>
+        <a class="button secondary" href="{% url 'daily_job_status_create' plan.pk %}">Añadir estado</a>
+        <a class="button secondary" href="{% url 'daily_job_plan_copy' plan.pk %}">Copiar</a>
+        <a class="button secondary" href="{% url 'daily_job_plan_csv' plan.pk %}">CSV</a>
+        <a class="button secondary" href="{% url 'daily_job_plan_excel' plan.pk %}">Excel plantilla</a>
+      {% endif %}
+      <a class="button secondary" href="{% url 'daily_job_plan_list' %}">Volver</a>
+    </div>
+  </div>
+
+  {% if plan.notes %}
+    <article class="person-card">
+      <strong>Notas generales</strong>
+      <span>{{ plan.notes|linebreaksbr }}</span>
+    </article>
+  {% endif %}
+
+  <h2>Vista agrupada</h2>
+  {% for group in grouped_assignments %}
+    <article class="card nested-card">
+      <h3>{{ group.client }} · {{ group.worksite }}</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th><th>Máquina</th><th>Camión</th><th>Trabajador</th><th>Horas</th><th>Viajes</th><th>Observaciones</th>{% if can_manage %}<th>Acciones</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in group.items %}
+              <tr>
+                <td>{{ item.get_category_display }}</td>
+                <td>{{ item.machine|default:"-" }}</td>
+                <td>{{ item.truck|default:"-" }}</td>
+                <td>{% if item.worker_name %}{{ item.worker_name }}{% elif item.employee %}{{ item.employee }}{% else %}-{% endif %}</td>
+                <td>{{ item.hours|default:"-" }}</td>
+                <td>{{ item.trips|default:"-" }}</td>
+                <td>{{ item.notes|linebreaksbr|default:"-" }}</td>
+                {% if can_manage %}
+                  <td>
+                    <a href="{% url 'daily_job_assignment_edit' item.pk %}">Editar</a> ·
+                    <a href="{% url 'daily_job_assignment_delete' item.pk %}">Eliminar</a><br>
+                    <a href="{% url 'daily_report_create' %}?assignment={{ item.pk }}">Parte</a> ·
+                    <a href="{% url 'customer_delivery_note_create' %}?assignment={{ item.pk }}">Albarán</a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  {% empty %}
+    <p>Todavía no hay líneas de faena.</p>
+  {% endfor %}
+
+  <h2>Estados y disponibilidad</h2>
+  <div class="grid two">
+    {% for label, entries in status_groups %}
+      <article class="person-card">
+        <strong>{{ label }}</strong>
+        {% for entry in entries %}
+          <span>
+            {{ entry.text|linebreaksbr }}
+            {% if can_manage %}
+              <br><a href="{% url 'daily_job_status_edit' entry.pk %}">Editar</a> ·
+              <a href="{% url 'daily_job_status_delete' entry.pk %}">Eliminar</a>
+            {% endif %}
+          </span>
+        {% endfor %}
+      </article>
+    {% empty %}
+      <p>No hay estados añadidos.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
