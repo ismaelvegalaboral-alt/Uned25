@@ -95,6 +95,7 @@
             <a href="{% url 'daily_report_create' %}">Parte personal</a>
               <a href="{% url 'customer_delivery_note_create' %}">Albar&aacute;n cliente</a>
               <a href="{% url 'daily_job_plan_list' %}">Faena diaria</a>
+              {% if can_use_work_orders %}<a href="{% url 'work_order_list' %}">Órdenes trabajo</a>{% endif %}
       </nav>
     <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Salir</button></form>
   </aside>

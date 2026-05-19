@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DailyWorkReport, AuditLog, DailyWorkReport, Employee, LoginAttempt, VacationDecision, VacationRequest, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry
+from .models import DailyWorkReport, AuditLog, DailyWorkReport, Employee, LoginAttempt, VacationDecision, VacationRequest, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry, PlatformFeaturePermission, WorkOrder, WorkOrderReceipt, WorkOrderHourEntry
 
 try:
     from .models import PushSubscription
@@ -105,3 +105,43 @@ if PushSubscription is not None:
         list_display = ('user', 'is_active', 'created_at', 'updated_at')
         list_filter = ('is_active', 'created_at')
         search_fields = ('user__username', 'endpoint')
+
+@admin.register(PlatformFeaturePermission)
+class PlatformFeaturePermissionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'can_use_vacations', 'can_use_daily_reports', 'can_use_customer_delivery_notes', 'can_use_daily_jobs', 'can_use_work_orders', 'updated_at')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email')
+    list_filter = ('can_use_vacations', 'can_use_daily_reports', 'can_use_customer_delivery_notes', 'can_use_daily_jobs', 'can_use_work_orders')
+
+
+class WorkOrderHourEntryInline(admin.TabularInline):
+    model = WorkOrderHourEntry
+    extra = 0
+
+
+class WorkOrderReceiptInline(admin.TabularInline):
+    model = WorkOrderReceipt
+    extra = 0
+
+
+@admin.register(WorkOrder)
+class WorkOrderAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'worker_name', 'vehicle_machine', 'order_type', 'status', 'employee')
+    list_filter = ('order_type', 'status', 'created_at')
+    search_fields = ('worker_name', 'vehicle_machine', 'task_description')
+    readonly_fields = ('created_at', 'updated_at', 'closed_at')
+    inlines = [WorkOrderHourEntryInline, WorkOrderReceiptInline]
+
+
+@admin.register(WorkOrderReceipt)
+class WorkOrderReceiptAdmin(admin.ModelAdmin):
+    list_display = ('uploaded_at', 'work_order', 'supplier', 'receipt_number', 'amount')
+    list_filter = ('uploaded_at', 'receipt_date')
+    search_fields = ('supplier', 'receipt_number', 'description')
+
+
+@admin.register(WorkOrderHourEntry)
+class WorkOrderHourEntryAdmin(admin.ModelAdmin):
+    list_display = ('work_date', 'work_order', 'hours', 'created_by')
+    list_filter = ('work_date',)
+    search_fields = ('work_order__worker_name', 'work_order__vehicle_machine', 'notes')
+

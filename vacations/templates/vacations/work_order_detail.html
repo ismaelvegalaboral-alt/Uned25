@@ -1,0 +1,75 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Orden de trabajo</h1>
+      <p>{{ order.worker_name }} · {{ order.vehicle_machine }} · {{ order.get_order_type_display }}</p>
+    </div>
+    <div class="actions">
+      {% if order.status == "open" %}
+        <a class="button primary" href="{% url 'work_order_add_hours' order.pk %}">Añadir horas</a>
+        <a class="button secondary" href="{% url 'work_order_add_receipt' order.pk %}">Subir albarán/ticket</a>
+        <a class="button secondary" href="{% url 'work_order_close' order.pk %}">Cerrar orden</a>
+      {% endif %}
+      <a class="button secondary" href="{% url 'work_order_list' %}">Volver</a>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <article class="person-card"><strong>Trabajador</strong><span>{{ order.worker_name }}</span></article>
+    <article class="person-card"><strong>Vehículo/Máquina</strong><span>{{ order.vehicle_machine }}</span></article>
+    <article class="person-card"><strong>Tipo</strong><span>{{ order.get_order_type_display }}</span></article>
+    <article class="person-card"><strong>Estado</strong><span>{{ order.get_status_display }}</span></article>
+    <article class="person-card"><strong>Fecha creación</strong><span>{{ order.created_at|date:"d/m/Y H:i" }}</span></article>
+    <article class="person-card"><strong>Total horas</strong><span>{{ order.total_hours|floatformat:2 }}</span></article>
+  </div>
+
+  <h2>Descripción de tarea</h2>
+  <p>{{ order.task_description|linebreaksbr }}</p>
+
+  <h2>Horas imputadas</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Horas</th><th>Observaciones</th></tr>
+      </thead>
+      <tbody>
+        {% for entry in hour_entries %}
+          <tr>
+            <td>{{ entry.work_date|date:"d/m/Y" }}</td>
+            <td>{{ entry.hours }}</td>
+            <td>{{ entry.notes|linebreaksbr|default:"-" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3">Todavía no se han añadido horas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Albaranes, tickets o facturas</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Proveedor/Taller</th><th>Número</th><th>Importe</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        {% for receipt in receipts %}
+          <tr>
+            <td>{{ receipt.receipt_date|date:"d/m/Y"|default:"-" }}</td>
+            <td>{{ receipt.supplier|default:"-" }}</td>
+            <td>{{ receipt.receipt_number|default:"-" }}</td>
+            <td>{% if receipt.amount %}{{ receipt.amount }} €{% else %}-{% endif %}</td>
+            <td><a href="{{ receipt.receipt_file.url }}" target="_blank">Ver archivo</a></td>
+            <td>{{ receipt.description|linebreaksbr|default:"-" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6">Todavía no hay albaranes/tickets subidos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

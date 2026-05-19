@@ -18,3 +18,29 @@ def role_flags(request):
         'can_decide_requests': can_decide_requests(user),
         'can_create_request': can_create_request(user),
     }
+
+def feature_flags(request):
+    try:
+        from .feature_access import can_use_feature
+    except Exception:
+        return {}
+
+    user = getattr(request, 'user', None)
+
+    if not user or not user.is_authenticated:
+        return {
+            'can_use_vacations': False,
+            'can_use_daily_reports': False,
+            'can_use_customer_delivery_notes': False,
+            'can_use_daily_jobs': False,
+            'can_use_work_orders': False,
+        }
+
+    return {
+        'can_use_vacations': can_use_feature(user, 'vacations'),
+        'can_use_daily_reports': can_use_feature(user, 'daily_reports'),
+        'can_use_customer_delivery_notes': can_use_feature(user, 'customer_delivery_notes'),
+        'can_use_daily_jobs': can_use_feature(user, 'daily_jobs'),
+        'can_use_work_orders': can_use_feature(user, 'work_orders'),
+    }
+

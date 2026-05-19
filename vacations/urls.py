@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from . import work_order_views
 from . import daily_job_plan_views
 from . import customer_delivery_note_views
 from . import daily_report_views
@@ -8,6 +9,12 @@ from . import file_views
 from . import push_views
 
 urlpatterns = [
+    path('ordenes-trabajo/', work_order_views.work_order_list, name='work_order_list'),
+    path('ordenes-trabajo/nueva/', work_order_views.work_order_create, name='work_order_create'),
+    path('ordenes-trabajo/<int:pk>/', work_order_views.work_order_detail, name='work_order_detail'),
+    path('ordenes-trabajo/<int:pk>/horas/', work_order_views.work_order_add_hours, name='work_order_add_hours'),
+    path('ordenes-trabajo/<int:pk>/albaran/', work_order_views.work_order_add_receipt, name='work_order_add_receipt'),
+    path('ordenes-trabajo/<int:pk>/cerrar/', work_order_views.work_order_close, name='work_order_close'),
     path('faena/', daily_job_plan_views.daily_job_plan_list, name='daily_job_plan_list'),
     path('faena/nueva/', daily_job_plan_views.daily_job_plan_create, name='daily_job_plan_create'),
     path('faena/<int:pk>/', daily_job_plan_views.daily_job_plan_detail, name='daily_job_plan_detail'),

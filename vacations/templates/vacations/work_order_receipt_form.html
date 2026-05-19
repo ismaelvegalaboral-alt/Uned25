@@ -1,0 +1,27 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Subir albarán o ticket</h1>
+      <p>{{ order.vehicle_machine }} · {{ order.worker_name }}</p>
+    </div>
+    <a class="button secondary" href="{% url 'work_order_detail' order.pk %}">Volver</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row span-2"><label>{{ form.receipt_file.label }}</label>{{ form.receipt_file }}{{ form.receipt_file.errors }}<small>Puedes subir una foto hecha con el móvil o un PDF.</small></div>
+    <div class="form-row"><label>{{ form.receipt_date.label }}</label>{{ form.receipt_date }}</div>
+    <div class="form-row"><label>{{ form.supplier.label }}</label>{{ form.supplier }}</div>
+    <div class="form-row"><label>{{ form.receipt_number.label }}</label>{{ form.receipt_number }}</div>
+    <div class="form-row"><label>{{ form.amount.label }}</label>{{ form.amount }}</div>
+    <div class="form-row span-2"><label>{{ form.description.label }}</label>{{ form.description }}</div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Subir archivo</button>
+      <a class="button secondary" href="{% url 'work_order_detail' order.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

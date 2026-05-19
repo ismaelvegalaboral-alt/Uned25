@@ -1,0 +1,47 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Nueva orden de trabajo</h1>
+      <p>Trabajador: <strong>{{ worker_name }}</strong></p>
+    </div>
+    <a class="button secondary" href="{% url 'work_order_list' %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+
+    <div class="form-row span-2">
+      <label>Nombre del trabajador</label>
+      <input class="form-control" type="text" value="{{ worker_name }}" readonly>
+      <small>Este campo se rellena automáticamente con el usuario que ha iniciado sesión.</small>
+    </div>
+
+    <div class="form-row">
+      <label>{{ form.vehicle_machine.label }}</label>
+      {{ form.vehicle_machine }}
+      {{ form.vehicle_machine.errors }}
+      <small>Más adelante se podrá convertir en desplegable con el listado oficial de máquinas, camiones y vehículos.</small>
+    </div>
+
+    <div class="form-row">
+      <label>{{ form.order_type.label }}</label>
+      {{ form.order_type }}
+      {{ form.order_type.errors }}
+    </div>
+
+    <div class="form-row span-2">
+      <label>{{ form.task_description.label }}</label>
+      {{ form.task_description }}
+      {{ form.task_description.errors }}
+    </div>
+
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Crear orden</button>
+      <a class="button secondary" href="{% url 'work_order_list' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

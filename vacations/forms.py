@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django import forms
 
-from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry
+from .models import Employee, VacationDecision, VacationRequest, DailyWorkReport, CustomerDeliveryNote, DailyJobPlan, DailyJobAssignment, DailyJobStatusEntry, WorkOrder, WorkOrderReceipt, WorkOrderHourEntry
 from .permissions import can_create_requests_for_others, get_employee_for_user
 from .services import business_days_between, committed_days_for_employee
 
@@ -274,6 +274,61 @@ class DailyJobStatusEntryForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+class WorkOrderForm(forms.ModelForm):
+    class Meta:
+        model = WorkOrder
+        fields = ['vehicle_machine', 'order_type', 'task_description']
+        widgets = {
+            'task_description': forms.Textarea(attrs={'rows': 5}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['vehicle_machine'].widget.attrs.update({
+            'placeholder': 'Ejemplo: JCB Mixta, Camión H02367, VOLVO A40...',
+        })
+
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+
+class WorkOrderReceiptForm(forms.ModelForm):
+    class Meta:
+        model = WorkOrderReceipt
+        fields = ['receipt_file', 'receipt_date', 'supplier', 'receipt_number', 'amount', 'description']
+        widgets = {
+            'receipt_date': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'receipt_file': forms.FileInput(attrs={'accept': 'image/*,application/pdf'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (css + ' form-control').strip()
+
+
+class WorkOrderHourEntryForm(forms.ModelForm):
+    class Meta:
+        model = WorkOrderHourEntry
+        fields = ['work_date', 'hours', 'notes']
+        widgets = {
+            'work_date': forms.DateInput(attrs={'type': 'date'}),
+            'hours': forms.NumberInput(attrs={'step': '0.25', 'min': '0'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         for field in self.fields.values():
             css = field.widget.attrs.get('class', '')
             field.widget.attrs['class'] = (css + ' form-control').strip()

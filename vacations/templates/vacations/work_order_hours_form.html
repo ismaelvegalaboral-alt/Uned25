@@ -1,0 +1,24 @@
+{% extends "vacations/base.html" %}
+
+{% block content %}
+<section class="card">
+  <div class="section-header">
+    <div>
+      <h1>Añadir horas</h1>
+      <p>{{ order.vehicle_machine }} · {{ order.worker_name }}</p>
+    </div>
+    <a class="button secondary" href="{% url 'work_order_detail' order.pk %}">Volver</a>
+  </div>
+
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <div class="form-row"><label>{{ form.work_date.label }}</label>{{ form.work_date }}{{ form.work_date.errors }}</div>
+    <div class="form-row"><label>{{ form.hours.label }}</label>{{ form.hours }}{{ form.hours.errors }}<small>Puedes usar decimales. Ejemplo: 1.5, 2.25, 3.75.</small></div>
+    <div class="form-row span-2"><label>{{ form.notes.label }}</label>{{ form.notes }}</div>
+    <div class="form-actions span-2">
+      <button class="button primary" type="submit">Guardar horas</button>
+      <a class="button secondary" href="{% url 'work_order_detail' order.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

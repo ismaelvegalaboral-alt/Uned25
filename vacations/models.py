@@ -435,3 +435,148 @@ class DailyJobStatusEntry(models.Model):
 
     def __str__(self):
         return f'{self.get_status_type_display()}: {self.text[:60]}'
+
+class PlatformFeaturePermission(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='feature_permissions',
+        verbose_name='usuario',
+    )
+    can_use_vacations = models.BooleanField('vacaciones/ausencias', default=True)
+    can_use_daily_reports = models.BooleanField('partes personales', default=True)
+    can_use_customer_delivery_notes = models.BooleanField('albaranes de cliente', default=True)
+    can_use_daily_jobs = models.BooleanField('faena diaria', default=True)
+    can_use_work_orders = models.BooleanField('órdenes de trabajo', default=True)
+    notes = models.TextField('observaciones internas', blank=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+
+    class Meta:
+        verbose_name = 'permiso de funciones de plataforma'
+        verbose_name_plural = 'permisos de funciones de plataforma'
+
+    def __str__(self):
+        return f'Permisos de {self.user}'
+
+
+class WorkOrder(models.Model):
+    ORDER_MAINTENANCE = 'maintenance'
+    ORDER_REPAIR = 'repair'
+
+    ORDER_TYPE_CHOICES = [
+        (ORDER_MAINTENANCE, 'Mantenimiento'),
+        (ORDER_REPAIR, 'Reparación'),
+    ]
+
+    STATUS_OPEN = 'open'
+    STATUS_CLOSED = 'closed'
+
+    STATUS_CHOICES = [
+        (STATUS_OPEN, 'Abierta'),
+        (STATUS_CLOSED, 'Cerrada'),
+    ]
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='work_orders',
+        verbose_name='trabajador',
+    )
+    worker_name = models.CharField('nombre del trabajador', max_length=255)
+    vehicle_machine = models.CharField('vehículo o máquina', max_length=255)
+    order_type = models.CharField('tipo', max_length=30, choices=ORDER_TYPE_CHOICES)
+    task_description = models.TextField('descripción de tarea')
+    status = models.CharField('estado', max_length=30, choices=STATUS_CHOICES, default=STATUS_OPEN)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_work_orders',
+        verbose_name='creada por',
+    )
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+    updated_at = models.DateTimeField('última actualización', auto_now=True)
+    closed_at = models.DateTimeField('fecha de cierre', null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'orden de trabajo'
+        verbose_name_plural = 'órdenes de trabajo'
+
+    def __str__(self):
+        return f'{self.worker_name} · {self.vehicle_machine} · {self.get_order_type_display()}'
+
+    @property
+    def total_hours(self):
+        total = 0
+        for entry in self.hour_entries.all():
+            total += float(entry.hours or 0)
+        return total
+
+
+class WorkOrderReceipt(models.Model):
+    work_order = models.ForeignKey(
+        WorkOrder,
+        on_delete=models.CASCADE,
+        related_name='receipts',
+        verbose_name='orden de trabajo',
+    )
+    receipt_file = models.FileField(
+        'foto/PDF de albarán o ticket',
+        upload_to='work_order_receipts/%Y/%m/',
+    )
+    receipt_date = models.DateField('fecha del albarán/ticket', null=True, blank=True)
+    supplier = models.CharField('proveedor/taller', max_length=255, blank=True)
+    receipt_number = models.CharField('número de albarán/ticket', max_length=120, blank=True)
+    amount = models.DecimalField('importe', max_digits=10, decimal_places=2, null=True, blank=True)
+    description = models.TextField('descripción', blank=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='uploaded_work_order_receipts',
+        verbose_name='subido por',
+    )
+    uploaded_at = models.DateTimeField('fecha de subida', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name = 'albarán/ticket de orden de trabajo'
+        verbose_name_plural = 'albaranes/tickets de órdenes de trabajo'
+
+    def __str__(self):
+        return self.receipt_number or self.supplier or f'Albarán orden {self.work_order_id}'
+
+
+class WorkOrderHourEntry(models.Model):
+    work_order = models.ForeignKey(
+        WorkOrder,
+        on_delete=models.CASCADE,
+        related_name='hour_entries',
+        verbose_name='orden de trabajo',
+    )
+    work_date = models.DateField('fecha')
+    hours = models.DecimalField('horas', max_digits=5, decimal_places=2)
+    notes = models.TextField('observaciones', blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_work_order_hours',
+        verbose_name='creado por',
+    )
+    created_at = models.DateTimeField('fecha de creación', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-work_date', '-created_at']
+        verbose_name = 'hora de orden de trabajo'
+        verbose_name_plural = 'horas de órdenes de trabajo'
+
+    def __str__(self):
+        return f'{self.work_order} · {self.work_date:%d/%m/%Y} · {self.hours}h'
