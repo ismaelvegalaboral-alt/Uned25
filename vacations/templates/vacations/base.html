@@ -88,13 +88,13 @@
       <a href="{% url 'dashboard' %}">Panel</a>
       <a href="{% url 'notification_settings' %}">Notificaciones</a>
       {% if can_manage_employees %}<a href="{% url 'employee_list' %}">Fichas</a>{% endif %}
-      <a href="{% url 'request_list' %}">Solicitudes</a>
-      {% if can_view_calendar %}<a href="{% url 'vacation_calendar' %}">Calendario</a>{% endif %}
-      {% if can_create_request %}<a href="{% url 'request_create' %}">Nueva solicitud</a>{% endif %}
+      {% if can_use_vacations %}<a href="{% url 'request_list' %}">Solicitudes</a>{% endif %}
+      {% if can_view_calendar %}{% if can_use_vacations %}<a href="{% url 'vacation_calendar' %}">Calendario</a>{% endif %}{% endif %}
+      {% if can_create_request %}{% if can_use_vacations %}<a href="{% url 'request_create' %}">Nueva solicitud</a>{% endif %}{% endif %}
       {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
-            <a href="{% url 'daily_report_create' %}">Parte personal</a>
-              <a href="{% url 'customer_delivery_note_create' %}">Albar&aacute;n cliente</a>
-              <a href="{% url 'daily_job_plan_list' %}">Faena diaria</a>
+            {% if can_use_daily_reports %}<a href="{% url 'daily_report_create' %}">Parte personal</a>{% endif %}
+              {% if can_use_customer_delivery_notes %}<a href="{% url 'customer_delivery_note_create' %}">Albar&aacute;n cliente</a>{% endif %}
+              {% if can_use_daily_jobs %}<a href="{% url 'daily_job_plan_list' %}">Faena diaria</a>{% endif %}
               {% if can_use_work_orders %}<a href="{% url 'work_order_list' %}">Órdenes trabajo</a>{% endif %}
       </nav>
     <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Salir</button></form>
